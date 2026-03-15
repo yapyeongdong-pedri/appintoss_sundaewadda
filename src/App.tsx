@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { IntroSection } from "./components/IntroSection";
 import { NeighborhoodMap } from "./components/NeighborhoodMap";
 import { RegistrationSheet } from "./components/RegistrationSheet";
+import { RequestsScreen } from "./components/RequestsScreen";
+import { SettingsScreen } from "./components/SettingsScreen";
 import { UpdateSheet } from "./components/UpdateSheet";
 import { VendorSheet } from "./components/VendorSheet";
 import { findDuplicateCandidates } from "./lib/duplicates";
@@ -13,7 +15,8 @@ import {
 } from "./lib/repository";
 import { buildVendorSummary } from "./lib/status";
 import type { LiveReport, RegistrationRequest, UpdateRequest, Vendor } from "./types";
-import { Badge, Button } from "./ui";
+
+type AppTab = "requests" | "map" | "settings";
 
 function App() {
   const [started, setStarted] = useState(false);
@@ -26,6 +29,7 @@ function App() {
   const [updateOpen, setUpdateOpen] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string>();
   const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [activeTab, setActiveTab] = useState<AppTab>("map");
 
   useEffect(() => {
     let mounted = true;
@@ -108,17 +112,16 @@ function App() {
 
   return (
     <main className="app-shell">
-      <section className="top-summary">
-        <div>
-          <p className="app-name">{"\uC21C\uB300\uC640\uB530"}</p>
-          <p className="app-caption">
-            {"\uC624\uB298 \uC6B0\uB9AC \uB3D9\uB124 \uC21C\uB300\uD2B8\uB7ED, \uACF1\uCC3D\uD2B8\uB7ED \uC654\uB294\uC9C0 \uD655\uC778\uD574\uC694"}
-          </p>
-        </div>
-        <Badge variant="weak" color="blue" size="small">
-          {"\uC694\uCCAD "} {registrationRequests.length + updateRequests.length}
-        </Badge>
-      </section>
+      {started || isBootstrapping ? (
+        <section className="top-summary top-summary-compact">
+          <div>
+            <p className="app-name">{"\uC21C\uB300\uC640\uB530"}</p>
+            <p className="app-caption">
+              {"\uC624\uB298 \uC6B0\uB9AC \uB3D9\uB124 \uC21C\uB300\uD2B8\uB7ED, \uACF1\uCC3D\uD2B8\uB7ED \uC654\uB294\uC9C0 \uD655\uC778\uD574\uC694"}
+            </p>
+          </div>
+        </section>
+      ) : null}
 
       {feedbackMessage ? (
         <section className="feedback-banner" role="status">
@@ -136,48 +139,60 @@ function App() {
       ) : !started ? (
         <IntroSection onStart={() => setStarted(true)} />
       ) : (
-        <>
-          <NeighborhoodMap
-            vendors={vendorSummaries}
-            selectedVendorId={selectedVendorId}
-            onSelect={(vendorId) => setSelectedVendorId(vendorId)}
-          />
-
-          <section className="request-summary">
-            <div className="summary-card">
-              <p className="section-eyebrow">{"\uAC80\uC218 \uB300\uAE30 \uB370\uC774\uD130"}</p>
-              <h2 className="section-title">{"\uC694\uCCAD \uD750\uB984 \uBD84\uB9AC"}</h2>
-              <p className="muted-text">
-                {
-                  "\uCD5C\uC885 \uD2B8\uB7ED DB\uB294 \uBC14\uB85C \uBC14\uB00C\uC9C0 \uC54A\uACE0, \uB4F1\uB85D/\uC218\uC815 \uC694\uCCAD\uC774 \uB530\uB85C \uC313\uC5EC\uC694."
-                }
-              </p>
-              <div className="summary-grid">
-                <div>
-                  <strong>{registrationRequests.length}</strong>
-                  <span>{"\uB4F1\uB85D \uC694\uCCAD"}</span>
-                </div>
-                <div>
-                  <strong>{updateRequests.length}</strong>
-                  <span>{"\uC218\uC815 \uC694\uCCAD"}</span>
-                </div>
-                <div>
-                  <strong>{reports.length}</strong>
-                  <span>{"\uC2E4\uC2DC\uAC04 \uC81C\uBCF4"}</span>
-                </div>
+        <section className="app-body">
+          <div className="screen-container">
+            {activeTab === "map" ? (
+              <div className="tab-screen">
+                <NeighborhoodMap
+                  vendors={vendorSummaries}
+                  selectedVendorId={selectedVendorId}
+                  onSelect={(vendorId) => setSelectedVendorId(vendorId)}
+                />
               </div>
-              <Button
-                color="primary"
-                variant="weak"
-                size="large"
-                display="full"
-                onClick={() => setRegistrationOpen(true)}
-              >
-                {"\uC2E0\uADDC \uD2B8\uB7ED \uB4F1\uB85D \uC694\uCCAD"}
-              </Button>
-            </div>
-          </section>
-        </>
+            ) : null}
+            {activeTab === "requests" ? (
+              <RequestsScreen
+                registrationRequests={registrationRequests}
+                updateRequests={updateRequests}
+                onOpenRegistration={() => setRegistrationOpen(true)}
+              />
+            ) : null}
+            {activeTab === "settings" ? <SettingsScreen /> : null}
+          </div>
+
+          <nav className="bottom-nav" aria-label="main navigation">
+            <button
+              type="button"
+              className={`bottom-nav-item bottom-nav-item-side ${
+                activeTab === "requests" ? "bottom-nav-item-active" : ""
+              }`}
+              onClick={() => setActiveTab("requests")}
+            >
+              <span className="bottom-nav-icon">{"\u2795"}</span>
+              <span>{"\uD2B8\uB7ED \uCD94\uAC00"}</span>
+            </button>
+            <button
+              type="button"
+              className={`bottom-nav-item bottom-nav-item-center ${
+                activeTab === "map" ? "bottom-nav-item-active" : ""
+              }`}
+              onClick={() => setActiveTab("map")}
+            >
+              <span className="bottom-nav-icon">{"\uD83D\uDCCD"}</span>
+              <span>{"\uC9C0\uB3C4 \uBCF4\uAE30"}</span>
+            </button>
+            <button
+              type="button"
+              className={`bottom-nav-item bottom-nav-item-side ${
+                activeTab === "settings" ? "bottom-nav-item-active" : ""
+              }`}
+              onClick={() => setActiveTab("settings")}
+            >
+              <span className="bottom-nav-icon">{"\u2699\uFE0F"}</span>
+              <span>{"\uC124\uC815"}</span>
+            </button>
+          </nav>
+        </section>
       )}
 
       <VendorSheet

@@ -30,7 +30,7 @@ export function VendorSheet({
       header={<BottomSheet.Header>{vendor.name}</BottomSheet.Header>}
       headerDescription={
         <BottomSheet.HeaderDescription>
-          {vendor.position.address} {" · "} {vendor.category}
+          {vendor.position.address} {" \u00B7 "} {vendor.category}
         </BottomSheet.HeaderDescription>
       }
       cta={
