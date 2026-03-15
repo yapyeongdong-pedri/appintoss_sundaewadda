@@ -20,13 +20,14 @@ export function Button({
   display = "inline",
   color = "primary",
   variant = "fill",
+  size = "large",
 }: ButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`ui-button ui-button-${color} ui-button-${variant} ui-button-${display}`}
+      className={`ui-button ui-button-${color} ui-button-${variant} ui-button-${display} ui-button-${size}`}
     >
       {children}
     </button>

@@ -70,11 +70,24 @@ button {
 .ui-button {
   border: 0;
   border-radius: 18px;
-  padding: 14px 16px;
   font-size: 15px;
   font-weight: 600;
   line-height: 1.5;
   transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ui-button-medium {
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.ui-button-large {
+  padding: 14px 16px;
+}
+
+.ui-button-xlarge {
+  padding: 16px 18px;
+  font-size: 16px;
 }
 
 .ui-button:disabled {

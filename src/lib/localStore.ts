@@ -40,30 +40,30 @@ function writeJson<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
-export function loadVendors(): Vendor[] {
+export function loadLocalVendors(): Vendor[] {
   return readJson(KEYS.vendors, seedVendors);
 }
 
-export function loadReports(): LiveReport[] {
+export function loadLocalReports(): LiveReport[] {
   return readJson(KEYS.reports, seedReports);
 }
 
-export function loadRegistrationRequests(): RegistrationRequest[] {
+export function loadLocalRegistrationRequests(): RegistrationRequest[] {
   return readJson(KEYS.registrationRequests, seedRegistrationRequests);
 }
 
-export function loadUpdateRequests(): UpdateRequest[] {
+export function loadLocalUpdateRequests(): UpdateRequest[] {
   return readJson(KEYS.updateRequests, seedUpdateRequests);
 }
 
-export function saveReports(reports: LiveReport[]) {
+export function saveLocalReports(reports: LiveReport[]) {
   writeJson(KEYS.reports, reports);
 }
 
-export function saveRegistrationRequests(requests: RegistrationRequest[]) {
+export function saveLocalRegistrationRequests(requests: RegistrationRequest[]) {
   writeJson(KEYS.registrationRequests, requests);
 }
 
-export function saveUpdateRequests(requests: UpdateRequest[]) {
+export function saveLocalUpdateRequests(requests: UpdateRequest[]) {
   writeJson(KEYS.updateRequests, requests);
 }

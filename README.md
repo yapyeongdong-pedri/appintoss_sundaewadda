@@ -10,16 +10,17 @@
 - 실시간 제보 반영
 - 신규 등록 요청
 - 정보 수정 요청
-- 로컬 스토리지 기반 목업 DB 분리
+- Supabase 우선, localStorage fallback 데이터 저장 구조
 
 ## 데이터 구조
 
-- 최종 트럭 DB: `src/data/seed.ts`, `src/lib/storage.ts`
-- 실시간 제보 DB: `src/lib/storage.ts`
-- 등록/수정 요청 DB: `src/lib/storage.ts`
+- 최종 트럭 DB: `supabase/schema.sql`, `src/lib/repository.ts`
+- 실시간 제보 DB: `supabase/schema.sql`, `src/lib/repository.ts`
+- 등록/수정 요청 DB: `supabase/schema.sql`, `src/lib/repository.ts`
 
 ## 실행 전 참고
 
-- 현재 버전은 실제 백엔드 없이 `localStorage`로 흐름을 검증합니다.
+- `.env.example`를 복사해 `.env`를 만들고 Supabase URL/anon key를 넣으면 실제 DB를 사용합니다.
+- Supabase가 없으면 `localStorage` fallback으로 흐름을 검증합니다.
 - 실제 지도 SDK는 아직 연결하지 않았고, 심사 친화적인 지도형 캔버스로 먼저 구현했습니다.
 - 앱인토스 제출 전에는 실제 위치 권한/지도 SDK/서버 API 연결이 추가로 필요합니다.

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IntroSection } from "./components/IntroSection";
 import { NeighborhoodMap } from "./components/NeighborhoodMap";
 import { RegistrationSheet } from "./components/RegistrationSheet";
@@ -6,30 +6,49 @@ import { UpdateSheet } from "./components/UpdateSheet";
 import { VendorSheet } from "./components/VendorSheet";
 import { findDuplicateCandidates } from "./lib/duplicates";
 import {
-  loadRegistrationRequests,
-  loadReports,
-  loadUpdateRequests,
-  loadVendors,
-  saveRegistrationRequests,
-  saveReports,
-  saveUpdateRequests,
-} from "./lib/storage";
+  createLiveReport,
+  createRegistrationRequest,
+  createUpdateRequest,
+  loadAppData,
+} from "./lib/repository";
 import { buildVendorSummary } from "./lib/status";
-import type { LiveReport, RegistrationRequest, UpdateRequest } from "./types";
+import type { LiveReport, RegistrationRequest, UpdateRequest, Vendor } from "./types";
 import { Badge, Button } from "./ui";
 
 function App() {
   const [started, setStarted] = useState(false);
-  const [vendors] = useState(() => loadVendors());
-  const [reports, setReports] = useState<LiveReport[]>(() => loadReports());
-  const [registrationRequests, setRegistrationRequests] = useState<RegistrationRequest[]>(
-    () => loadRegistrationRequests(),
-  );
-  const [updateRequests, setUpdateRequests] = useState<UpdateRequest[]>(() => loadUpdateRequests());
+  const [vendors, setVendors] = useState<Vendor[]>(() => []);
+  const [reports, setReports] = useState<LiveReport[]>(() => []);
+  const [registrationRequests, setRegistrationRequests] = useState<RegistrationRequest[]>(() => []);
+  const [updateRequests, setUpdateRequests] = useState<UpdateRequest[]>(() => []);
   const [selectedVendorId, setSelectedVendorId] = useState<string>();
   const [registrationOpen, setRegistrationOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string>();
+  const [isBootstrapping, setIsBootstrapping] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function bootstrap() {
+      const bundle = await loadAppData();
+      if (!mounted) {
+        return;
+      }
+
+      setVendors(bundle.vendors);
+      setReports(bundle.reports);
+      setRegistrationRequests(bundle.registrationRequests);
+      setUpdateRequests(bundle.updateRequests);
+      setIsBootstrapping(false);
+    }
+
+    bootstrap();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const vendorSummaries = useMemo(
     () => vendors.map((vendor) => buildVendorSummary(vendor, reports)),
@@ -38,7 +57,7 @@ function App() {
 
   const selectedVendor = vendorSummaries.find((vendor) => vendor.id === selectedVendorId);
 
-  const handleReport = (vendorId: string, type: "open" | "notYet" | "closed") => {
+  const handleReport = async (vendorId: string, type: "open" | "notYet" | "closed") => {
     const nextReport: LiveReport = {
       id: crypto.randomUUID(),
       vendorId,
@@ -48,26 +67,24 @@ function App() {
     };
     const nextReports = [nextReport, ...reports];
     setReports(nextReports);
-    saveReports(nextReports);
+    await createLiveReport(nextReport);
     setFeedbackMessage("\uC2E4\uC2DC\uAC04 \uC81C\uBCF4\uAC00 \uBC18\uC601\uB410\uC5B4\uC694.");
   };
 
-  const handleSubmitRegistration = (
+  const handleSubmitRegistration = async (
     draft: Omit<RegistrationRequest, "id" | "submittedAt" | "duplicateCandidateIds">,
   ) => {
     const duplicates = findDuplicateCandidates(vendors, { name: draft.name, location: draft.location });
-    const nextRequests = [
-      {
-        ...draft,
-        id: crypto.randomUUID(),
-        submittedAt: new Date().toISOString(),
-        duplicateCandidateIds: duplicates.map((candidate) => candidate.id),
-      },
-      ...registrationRequests,
-    ];
+    const nextRequest = {
+      ...draft,
+      id: crypto.randomUUID(),
+      submittedAt: new Date().toISOString(),
+      duplicateCandidateIds: duplicates.map((candidate) => candidate.id),
+    };
+    const nextRequests = [nextRequest, ...registrationRequests];
 
     setRegistrationRequests(nextRequests);
-    saveRegistrationRequests(nextRequests);
+    await createRegistrationRequest(nextRequest);
     setRegistrationOpen(false);
     setFeedbackMessage(
       duplicates.length > 0
@@ -76,17 +93,15 @@ function App() {
     );
   };
 
-  const handleSubmitUpdate = (draft: Omit<UpdateRequest, "id" | "submittedAt">) => {
-    const nextRequests = [
-      {
-        ...draft,
-        id: crypto.randomUUID(),
-        submittedAt: new Date().toISOString(),
-      },
-      ...updateRequests,
-    ];
+  const handleSubmitUpdate = async (draft: Omit<UpdateRequest, "id" | "submittedAt">) => {
+    const nextRequest = {
+      ...draft,
+      id: crypto.randomUUID(),
+      submittedAt: new Date().toISOString(),
+    };
+    const nextRequests = [nextRequest, ...updateRequests];
     setUpdateRequests(nextRequests);
-    saveUpdateRequests(nextRequests);
+    await createUpdateRequest(nextRequest);
     setUpdateOpen(false);
     setFeedbackMessage("\uC218\uC815 \uC694\uCCAD\uC774 \uC811\uC218\uB410\uC5B4\uC694.");
   };
@@ -109,12 +124,16 @@ function App() {
         <section className="feedback-banner" role="status">
           <span>{feedbackMessage}</span>
           <button type="button" onClick={() => setFeedbackMessage(undefined)}>
-            close
+            {"\uB2EB\uAE30"}
           </button>
         </section>
       ) : null}
 
-      {!started ? (
+      {isBootstrapping ? (
+        <section className="hero-card">
+          <p className="hero-description">{"\uB370\uC774\uD130\uB97C \uBD88\uB7EC\uC624\uB294 \uC911\uC774\uC5D0\uC694."}</p>
+        </section>
+      ) : !started ? (
         <IntroSection onStart={() => setStarted(true)} />
       ) : (
         <>
