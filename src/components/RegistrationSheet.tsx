@@ -1,6 +1,6 @@
-import { BottomSheet, Button } from "@toss/tds-mobile";
 import { useMemo, useState } from "react";
 import type { RegistrationRequest, Vendor } from "../types";
+import { BottomSheet, Button } from "../ui";
 
 interface RegistrationSheetProps {
   open: boolean;

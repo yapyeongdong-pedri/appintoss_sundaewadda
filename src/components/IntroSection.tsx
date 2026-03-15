@@ -1,4 +1,4 @@
-import { Badge, Button } from "@toss/tds-mobile";
+import { Badge, Button } from "../ui";
 
 interface IntroSectionProps {
   onStart: () => void;

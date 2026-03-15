@@ -1,6 +1,6 @@
-import { Badge } from "@toss/tds-mobile";
 import { getStatusLabel } from "../lib/status";
 import type { VendorSummary } from "../types";
+import { Badge } from "../ui";
 
 interface NeighborhoodMapProps {
   vendors: VendorSummary[];

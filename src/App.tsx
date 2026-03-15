@@ -1,4 +1,3 @@
-import { Badge, Button } from "@toss/tds-mobile";
 import { useMemo, useState } from "react";
 import { IntroSection } from "./components/IntroSection";
 import { NeighborhoodMap } from "./components/NeighborhoodMap";
@@ -17,6 +16,7 @@ import {
 } from "./lib/storage";
 import { buildVendorSummary } from "./lib/status";
 import type { LiveReport, RegistrationRequest, UpdateRequest } from "./types";
+import { Badge, Button } from "./ui";
 
 function App() {
   const [started, setStarted] = useState(false);

@@ -1,6 +1,6 @@
-import { BottomSheet, Button } from "@toss/tds-mobile";
 import { useState } from "react";
 import type { UpdateRequest } from "../types";
+import { BottomSheet, Button } from "../ui";
 
 interface UpdateSheetProps {
   open: boolean;

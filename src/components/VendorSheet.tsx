@@ -1,6 +1,6 @@
-import { Badge, BottomSheet, Button } from "@toss/tds-mobile";
 import { getStatusLabel, getStatusTone } from "../lib/status";
 import type { VendorSummary } from "../types";
+import { Badge, BottomSheet, Button } from "../ui";
 
 interface VendorSheetProps {
   vendor?: VendorSummary;
