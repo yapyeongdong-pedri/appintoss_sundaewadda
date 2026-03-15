@@ -55,6 +55,8 @@ interface BottomSheetProps {
   headerDescription?: ReactNode;
   cta?: ReactNode;
   children: ReactNode;
+  hasTextField?: boolean;
+  expandBottomSheet?: boolean;
 }
 
 export function BottomSheet({
