@@ -62,7 +62,7 @@ export function VendorSheet({
         </header>
 
         <div className="detail-status-bar">
-          <div className="detail-status-main">
+          <div className={`detail-status-main detail-status-main-${vendor.status}`}>
             <Badge variant="fill" color={getStatusTone(vendor.status)} size="medium">
               {getStatusLabel(vendor.status)}
             </Badge>

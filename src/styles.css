@@ -293,16 +293,34 @@ button {
 
 .detail-status-main {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 12px 14px;
   border-radius: 20px;
   background: linear-gradient(180deg, #3182f6 0%, #1b64da 100%);
   color: #fff;
 }
 
+.detail-status-main-likelyOpen,
+.detail-status-main-ownerConfirmed {
+  background: linear-gradient(180deg, #3182f6 0%, #1b64da 100%);
+  color: #fff;
+}
+
+.detail-status-main-likelyClosed {
+  background: linear-gradient(180deg, #ffbe55 0%, #f28b18 100%);
+  color: #fff;
+}
+
+.detail-status-main-unknown {
+  background: linear-gradient(180deg, #9aa5b1 0%, #6b7684 100%);
+  color: #fff;
+}
+
 .detail-status-main .ui-badge {
   align-self: flex-start;
+  white-space: nowrap;
 }
 
 .detail-status-main .ui-badge-fill {
@@ -317,7 +335,9 @@ button {
   color: rgba(255, 255, 255, 0.92);
   font-size: 12px;
   line-height: 1.4;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .detail-quick-actions {
