@@ -72,15 +72,12 @@ export function VendorSheet({
             <h3 className="detail-title">{vendor.name}</h3>
             <p className="detail-meta-line">
               <span className="detail-meta-item" title={vendor.position.address}>
-                <strong>{"\uC601\uC5C5\uC7A5\uC18C"}</strong>
                 <span>{vendor.position.address}</span>
               </span>
               <span className="detail-meta-item" title={visitPatternLabel}>
-                <strong>{"\uC601\uC5C5\uC8FC\uAE30"}</strong>
                 <span>{visitPatternLabel}</span>
               </span>
               <span className="detail-meta-item" title={vendor.businessHours}>
-                <strong>{"\uC601\uC5C5\uC2DC\uAC04"}</strong>
                 <span>{vendor.businessHours}</span>
               </span>
             </p>

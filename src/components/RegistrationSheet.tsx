@@ -1,7 +1,10 @@
 import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { formatBusinessHours, type BusinessHoursValue } from "../lib/businessHours";
 import { readFilesAsDataUrls } from "../lib/imageFiles";
 import { areVisitRulesValid, formatVisitRules } from "../lib/visitRules";
 import type { MenuCategory, RegistrationRequest, Vendor } from "../types";
+import { BusinessHoursEditor } from "./BusinessHoursEditor";
+import { LocationPicker } from "./LocationPicker";
 import { VisitRuleEditor } from "./VisitRuleEditor";
 import { BottomSheet, Button } from "../ui";
 
@@ -30,15 +33,20 @@ export function RegistrationSheet({
   onCheckDuplicates,
 }: RegistrationSheetProps) {
   const [name, setName] = useState("");
-  const [location, setLocation] = useState("");
+  const [locationDescription, setLocationDescription] = useState("");
+  const [locationPin, setLocationPin] = useState<{ latitude?: number; longitude?: number }>({});
   const [visitRules, setVisitRules] = useState<RegistrationRequest["visitRules"]>([]);
+  const [businessHours, setBusinessHours] = useState<BusinessHoursValue>({ startHour: 18, endHour: 24 });
   const [businessCardPhoto, setBusinessCardPhoto] = useState("");
   const [menuBoardPhotos, setMenuBoardPhotos] = useState(["", "", ""]);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const businessCardInputRef = useRef<HTMLInputElement | null>(null);
   const menuBoardInputRef = useRef<HTMLInputElement | null>(null);
 
-  const candidates = useMemo(() => onCheckDuplicates(name, location), [location, name, onCheckDuplicates]);
+  const candidates = useMemo(
+    () => onCheckDuplicates(name, locationDescription),
+    [locationDescription, name, onCheckDuplicates],
+  );
 
   const handleBusinessCardSelect = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files == null || event.target.files.length === 0) {
@@ -67,16 +75,21 @@ export function RegistrationSheet({
   const handleSubmit = async () => {
     await onSubmit({
       name,
-      location,
+      location: locationDescription.trim(),
+      latitude: locationPin.latitude,
+      longitude: locationPin.longitude,
       visitPattern: formatVisitRules(visitRules),
       visitRules,
+      businessHours: formatBusinessHours(businessHours),
       businessCardPhoto,
       menuBoardPhotos: menuBoardPhotos.map((item) => item.trim()).filter(Boolean),
       menuCategories,
     });
     setName("");
-    setLocation("");
+    setLocationDescription("");
+    setLocationPin({});
     setVisitRules([]);
+    setBusinessHours({ startHour: 18, endHour: 24 });
     setBusinessCardPhoto("");
     setMenuBoardPhotos(["", "", ""]);
     setMenuCategories([]);
@@ -104,8 +117,9 @@ export function RegistrationSheet({
             onClick={handleSubmit}
             disabled={
               !name ||
-              !location ||
+              !locationDescription.trim() ||
               !areVisitRulesValid(visitRules ?? []) ||
+              businessHours.startHour >= businessHours.endHour ||
               menuBoardPhotos.every((item) => item.trim() === "")
             }
           >
@@ -123,20 +137,23 @@ export function RegistrationSheet({
             placeholder="\uC608: \uCCAD\uCD98 \uC21C\uB300\uD2B8\uB7ED"
           />
         </label>
-        <label className="field">
-          <span>{"\uD2B8\uB7ED \uC704\uCE58"}</span>
-          <input
-            value={location}
-            onChange={(event) => setLocation(event.target.value)}
-            placeholder="\uC608: \uC815\uB989\uC2DC\uC7A5 \uC785\uAD6C \uC55E"
+        <div className="field">
+          <span>{"\uC704\uCE58 \uC124\uBA85 / \uC815\uD655\uD55C \uD540"}</span>
+          <LocationPicker
+            description={locationDescription}
+            latitude={locationPin.latitude}
+            longitude={locationPin.longitude}
+            onDescriptionChange={setLocationDescription}
+            onPinChange={setLocationPin}
           />
-          <small className="field-help">
-            {"\uC785\uB825\uD55C \uC704\uCE58\uB97C \uAE30\uC900\uC73C\uB85C \uCE74\uCE74\uC624\uB9F5 \uC88C\uD45C\uB97C \uD568\uAED8 \uC800\uC7A5\uD574\uC694."}
-          </small>
-        </label>
+        </div>
         <div className="field">
           <span>{"\uC6B4\uC601\uC694\uC77C / \uC6B4\uC601\uC8FC\uAE30"}</span>
           <VisitRuleEditor value={visitRules ?? []} onChange={setVisitRules} />
+        </div>
+        <div className="field">
+          <span>{"\uC601\uC5C5\uC2DC\uAC04"}</span>
+          <BusinessHoursEditor value={businessHours} onChange={setBusinessHours} />
         </div>
         <div className="field">
           <span>{"\uB300\uD45C \uBA54\uB274 \uBD84\uB958"}</span>

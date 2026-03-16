@@ -1,21 +1,20 @@
 import type { MonthlyNth, VisitRule, Weekday } from "../types";
 
 export const WEEKDAY_OPTIONS: Array<{ value: Weekday; label: string }> = [
-  { value: "mon", label: "월" },
-  { value: "tue", label: "화" },
-  { value: "wed", label: "수" },
-  { value: "thu", label: "목" },
-  { value: "fri", label: "금" },
-  { value: "sat", label: "토" },
-  { value: "sun", label: "일" },
+  { value: "sun", label: "\uC77C" },
+  { value: "mon", label: "\uC6D4" },
+  { value: "tue", label: "\uD654" },
+  { value: "wed", label: "\uC218" },
+  { value: "thu", label: "\uBAA9" },
+  { value: "fri", label: "\uAE08" },
+  { value: "sat", label: "\uD1A0" },
 ];
 
 export const MONTHLY_NTH_OPTIONS: Array<{ value: MonthlyNth; label: string }> = [
-  { value: 1, label: "1째주" },
-  { value: 2, label: "2째주" },
-  { value: 3, label: "3째주" },
-  { value: 4, label: "4째주" },
-  { value: "last", label: "마지막 주" },
+  { value: 1, label: "\uCCAB\uC9F8\uC8FC" },
+  { value: 2, label: "\uB458\uC9F8\uC8FC" },
+  { value: 3, label: "\uC14B\uC9F8\uC8FC" },
+  { value: 4, label: "\uB137\uC9F8\uC8FC" },
 ];
 
 export function createVisitRule(mode: VisitRule["mode"] = "weekly"): VisitRule {
@@ -61,12 +60,12 @@ export function formatWeekdays(weekdays: Weekday[]): string {
 export function formatVisitRule(rule: VisitRule): string {
   switch (rule.mode) {
     case "daily":
-      return "매일";
+      return "\uB9E4\uC77C";
     case "weekly":
-      return `${rule.interval === 2 ? "격주" : "매주"} ${formatWeekdays(rule.weekdays)}요일`;
+      return `${rule.interval === 2 ? "\uACA9\uC8FC" : "\uB9E4\uC8FC"} ${formatWeekdays(rule.weekdays)}\uC694\uC77C`;
     case "monthlyNth": {
       const nthLabel = MONTHLY_NTH_OPTIONS.find((option) => option.value === rule.nth)?.label ?? `${rule.nth}`;
-      return `매월 ${nthLabel} ${formatWeekdays(rule.weekdays)}요일`;
+      return `\uB9E4\uC6D4 ${nthLabel} ${formatWeekdays(rule.weekdays)}\uC694\uC77C`;
     }
     case "custom":
       return rule.text.trim();

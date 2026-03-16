@@ -79,7 +79,10 @@ function App() {
   const handleSubmitRegistration = async (
     draft: Omit<RegistrationRequest, "id" | "submittedAt" | "duplicateCandidateIds">,
   ) => {
-    const geocoded = await geocodeAddress(draft.location);
+    const geocoded =
+      draft.latitude != null && draft.longitude != null
+        ? { latitude: draft.latitude, longitude: draft.longitude }
+        : await geocodeAddress(draft.location);
     const duplicates = findDuplicateCandidates(vendors, { name: draft.name, location: draft.location });
     const nextRequest = {
       ...draft,

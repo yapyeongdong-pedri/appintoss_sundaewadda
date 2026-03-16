@@ -59,7 +59,7 @@ function getCurrentFieldValue(vendor: VendorSummary | undefined, field: UpdateRe
     case "phone":
       return vendor.phone;
     case "closedNotice":
-      return "\uD604\uC7AC \uC601\uC5C5 \uC885\uB8CC \uC815\uBCF4 \uC5C6\uC74C";
+      return "(\uC601\uC5C5\uC911)";
     default:
       return "";
   }

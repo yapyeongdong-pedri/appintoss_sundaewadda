@@ -115,6 +115,9 @@ export function RequestsScreen({
                     </div>
                     <div className="request-meta-row">
                       <span>{formatVisitRules(request.visitRules, request.visitPattern)}</span>
+                      <span>{request.businessHours}</span>
+                    </div>
+                    <div className="request-meta-row">
                       <span>{formatTimeLabel(request.submittedAt)}</span>
                     </div>
                   </article>

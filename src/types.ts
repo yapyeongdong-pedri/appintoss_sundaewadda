@@ -76,6 +76,7 @@ export interface RegistrationRequest {
   longitude?: number;
   visitPattern: string;
   visitRules?: VisitRule[];
+  businessHours: string;
   businessCardPhoto: string;
   menuBoardPhotos: string[];
   menuCategories: MenuCategory[];

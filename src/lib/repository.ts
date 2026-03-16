@@ -58,6 +58,7 @@ interface RegistrationRequestRow {
   longitude?: number | null;
   visit_pattern: string;
   visit_rules?: VisitRule[] | null;
+  business_hours?: string | null;
   business_card_photo: string;
   menu_board_photo: string;
   menu_board_photos?: string[] | null;
@@ -144,6 +145,7 @@ function mapRegistrationRequestRow(row: RegistrationRequestRow): RegistrationReq
     longitude: row.longitude ?? undefined,
     visitPattern: row.visit_pattern,
     visitRules: row.visit_rules ?? undefined,
+    businessHours: row.business_hours ?? "",
     businessCardPhoto: row.business_card_photo,
     menuBoardPhotos: row.menu_board_photos ?? (row.menu_board_photo ? [row.menu_board_photo] : []),
     menuCategories: row.menu_categories ?? [],
@@ -274,6 +276,7 @@ export async function createRegistrationRequest(
     latitude: request.latitude ?? null,
     longitude: request.longitude ?? null,
     visit_pattern: request.visitPattern,
+    business_hours: request.businessHours,
     business_card_photo: request.businessCardPhoto,
     menu_board_photo: request.menuBoardPhotos[0] ?? "",
     menu_board_photos: request.menuBoardPhotos,
@@ -292,8 +295,22 @@ export async function createRegistrationRequest(
     return;
   }
 
-  if ("visit_rules" in payloadWithVisitRules) {
-    const fallbackInsert = await supabase.from("registration_requests").insert(legacyPayload);
+  if ("visit_rules" in payloadWithVisitRules || "business_hours" in payloadWithVisitRules) {
+    const fallbackPayload = {
+      id: request.id,
+      name: request.name,
+      location: request.location,
+      latitude: request.latitude ?? null,
+      longitude: request.longitude ?? null,
+      visit_pattern: request.visitPattern,
+      business_card_photo: request.businessCardPhoto,
+      menu_board_photo: request.menuBoardPhotos[0] ?? "",
+      menu_board_photos: request.menuBoardPhotos,
+      menu_categories: request.menuCategories,
+      submitted_at: request.submittedAt,
+      duplicate_candidate_ids: request.duplicateCandidateIds,
+    };
+    const fallbackInsert = await supabase.from("registration_requests").insert(fallbackPayload);
     if (!fallbackInsert.error) {
       return;
     }

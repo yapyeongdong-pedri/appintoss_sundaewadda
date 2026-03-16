@@ -21,6 +21,7 @@ const MODE_OPTIONS: Array<{ value: VisitRule["mode"]; label: string }> = [
 
 export function VisitRuleEditor({ value, onChange }: VisitRuleEditorProps) {
   const rules = value.length > 0 ? value : [createVisitRule()];
+  const shouldShowPreview = areVisitRulesValid(rules) && !rules.some((rule) => rule.mode === "custom");
 
   const updateRule = (index: number, nextRule: VisitRule) => {
     onChange(rules.map((rule, ruleIndex) => (ruleIndex === index ? nextRule : rule)));
@@ -113,24 +114,21 @@ export function VisitRuleEditor({ value, onChange }: VisitRuleEditorProps) {
 
           {rule.mode === "monthlyNth" ? (
             <>
-              <label className="field">
+              <div className="field">
                 <span>{"\uBA87\uC9F8 \uC8FC"}</span>
-                <select
-                  value={rule.nth}
-                  onChange={(event) =>
-                    updateRule(index, {
-                      ...rule,
-                      nth: event.target.value === "last" ? "last" : Number(event.target.value) as 1 | 2 | 3 | 4,
-                    })
-                  }
-                >
+                <div className="field-picker-grid visit-monthly-grid">
                   {MONTHLY_NTH_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
+                    <button
+                      key={option.value}
+                      type="button"
+                      className={`field-chip ${rule.nth === option.value ? "field-chip-active" : ""}`}
+                      onClick={() => updateRule(index, { ...rule, nth: option.value })}
+                    >
                       {option.label}
-                    </option>
+                    </button>
                   ))}
-                </select>
-              </label>
+                </div>
+              </div>
               <div className="field">
                 <span>{"\uC694\uC77C"}</span>
                 <div className="field-picker-grid visit-weekday-grid">
@@ -142,7 +140,14 @@ export function VisitRuleEditor({ value, onChange }: VisitRuleEditorProps) {
                         key={option.value}
                         type="button"
                         className={`field-chip ${active ? "field-chip-active" : ""}`}
-                        onClick={() => updateRule(index, { ...rule, weekdays: [option.value] })}
+                        onClick={() =>
+                          updateRule(index, {
+                            ...rule,
+                            weekdays: active
+                              ? rule.weekdays.filter((weekday) => weekday !== option.value)
+                              : [...rule.weekdays, option.value],
+                          })
+                        }
                       >
                         {option.label}
                       </button>
@@ -159,7 +164,7 @@ export function VisitRuleEditor({ value, onChange }: VisitRuleEditorProps) {
               <input
                 value={rule.text}
                 onChange={(event) => updateRule(index, { ...rule, text: event.target.value })}
-                placeholder="\uC608: \uC7A5\uB0A0 \uC704\uC8FC, \uBE44 \uC624\uB294 \uB0A0 \uD734\uBB34"
+                placeholder="\uC608: \uB9E4\uC6D4 10\uC77C 20\uC77C 30\uC77C\uC5D0 \uC640\uC694"
               />
               <small className="field-help">
                 {"\uC815\uD615\uD654\uD558\uAE30 \uC5B4\uB824\uC6B4 \uADDC\uCE59\uC740 \uC9C1\uC811 \uC785\uB825\uC73C\uB85C \uB0A8\uACA8\uB458 \uC218 \uC788\uC5B4\uC694."}
@@ -177,14 +182,12 @@ export function VisitRuleEditor({ value, onChange }: VisitRuleEditorProps) {
         {"\uC6B4\uC601 \uADDC\uCE59 \uCD94\uAC00"}
       </button>
 
-      <div className="hint-card">
-        <p className="section-label">{"\uC6B4\uC601\uC694\uC77C \uBBF8\uB9AC\uBCF4\uAE30"}</p>
-        <p className="muted-text">
-          {areVisitRulesValid(rules)
-            ? formatVisitRules(rules)
-            : "\uBC18\uBCF5 \uBC29\uC2DD\uACFC \uC694\uC77C\uC744 \uC120\uD0DD\uD558\uBA74 \uC790\uB3D9\uC73C\uB85C \uBB38\uC7A5\uC774 \uC815\uB9AC\uB3FC\uC694."}
-        </p>
-      </div>
+      {shouldShowPreview ? (
+        <div className="hint-card">
+          <p className="section-label">{"\uC6B4\uC601\uC694\uC77C \uBBF8\uB9AC\uBCF4\uAE30"}</p>
+          <p className="muted-text">{formatVisitRules(rules)}</p>
+        </div>
+      ) : null}
     </div>
   );
 }
