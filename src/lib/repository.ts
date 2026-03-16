@@ -16,7 +16,6 @@ interface VendorRow {
   category: Vendor["category"];
   phone: string;
   menu_summary: string[];
-  menu_items?: MenuItem[] | null;
   price_summary: string;
   business_hours: string;
   visit_pattern: string;
@@ -25,6 +24,16 @@ interface VendorRow {
   position_y: number;
   address: string;
   owner_confirmed_today: boolean;
+}
+
+interface VendorMenuItemRow {
+  id: string;
+  vendor_id: string;
+  menu_name: string;
+  price: string;
+  menu_category: MenuItem["category"];
+  sort_order: number;
+  is_available: boolean;
 }
 
 interface LiveReportRow {
@@ -44,6 +53,7 @@ interface RegistrationRequestRow {
   visit_pattern: string;
   business_card_photo: string;
   menu_board_photo: string;
+  menu_categories?: RegistrationRequest["menuCategories"] | null;
   submitted_at: string;
   duplicate_candidate_ids: string[];
 }
@@ -53,6 +63,12 @@ interface UpdateRequestRow {
   vendor_id: string;
   field: UpdateRequest["field"];
   value: string;
+  menu_category?: UpdateRequest["menuCategory"] | null;
+  target_menu_name?: string | null;
+  current_menu_name?: string | null;
+  current_menu_price?: string | null;
+  proposed_menu_name?: string | null;
+  proposed_menu_price?: string | null;
   submitted_at: string;
 }
 
@@ -63,11 +79,7 @@ export interface AppDataBundle {
   updateRequests: UpdateRequest[];
 }
 
-function buildMenuItems(menuSummary: string[], priceSummary: string, rowMenuItems?: MenuItem[] | null) {
-  if (Array.isArray(rowMenuItems) && rowMenuItems.length > 0) {
-    return rowMenuItems;
-  }
-
+function buildFallbackMenuItems(menuSummary: string[], priceSummary: string) {
   const prices = priceSummary
     .split("/")
     .map((part) => part.trim())
@@ -76,17 +88,18 @@ function buildMenuItems(menuSummary: string[], priceSummary: string, rowMenuItem
   return menuSummary.map((name, index) => ({
     name,
     price: prices[index] ?? prices[prices.length - 1] ?? "-",
+    category: "\uAE30\uD0C0" as const,
   }));
 }
 
-function mapVendorRow(row: VendorRow): Vendor {
+function mapVendorRow(row: VendorRow, menuItems: MenuItem[]): Vendor {
   return {
     id: row.id,
     name: row.name,
     category: row.category,
     phone: row.phone,
     menuSummary: row.menu_summary,
-    menuItems: buildMenuItems(row.menu_summary, row.price_summary, row.menu_items),
+    menuItems: menuItems.length > 0 ? menuItems : buildFallbackMenuItems(row.menu_summary, row.price_summary),
     priceSummary: row.price_summary,
     businessHours: row.business_hours,
     visitPattern: row.visit_pattern,
@@ -120,6 +133,7 @@ function mapRegistrationRequestRow(row: RegistrationRequestRow): RegistrationReq
     visitPattern: row.visit_pattern,
     businessCardPhoto: row.business_card_photo,
     menuBoardPhoto: row.menu_board_photo,
+    menuCategories: row.menu_categories ?? [],
     submittedAt: row.submitted_at,
     duplicateCandidateIds: row.duplicate_candidate_ids ?? [],
   };
@@ -131,6 +145,12 @@ function mapUpdateRequestRow(row: UpdateRequestRow): UpdateRequest {
     vendorId: row.vendor_id,
     field: row.field,
     value: row.value,
+    menuCategory: row.menu_category ?? undefined,
+    targetMenuName: row.target_menu_name ?? undefined,
+    currentMenuName: row.current_menu_name ?? undefined,
+    currentMenuPrice: row.current_menu_price ?? undefined,
+    proposedMenuName: row.proposed_menu_name ?? undefined,
+    proposedMenuPrice: row.proposed_menu_price ?? undefined,
     submittedAt: row.submitted_at,
   };
 }
@@ -150,12 +170,17 @@ export async function loadAppData(): Promise<AppDataBundle> {
   }
 
   try {
-    const [vendorsResult, reportsResult, registrationResult, updateResult] =
+    const [vendorsResult, reportsResult, registrationResult, updateResult, vendorMenuItemsResult] =
       await Promise.all([
         supabase.from("vendors").select("*").order("created_at", { ascending: true }),
         supabase.from("live_reports").select("*").order("created_at", { ascending: false }),
         supabase.from("registration_requests").select("*").order("submitted_at", { ascending: false }),
         supabase.from("update_requests").select("*").order("submitted_at", { ascending: false }),
+        supabase
+          .from("vendor_menu_items")
+          .select("*")
+          .eq("is_available", true)
+          .order("sort_order", { ascending: true }),
       ]);
 
     if (
@@ -173,8 +198,21 @@ export async function loadAppData(): Promise<AppDataBundle> {
       return getFallbackBundle();
     }
 
+    const menuMap = new Map<string, MenuItem[]>();
+    if (!vendorMenuItemsResult.error && vendorMenuItemsResult.data != null) {
+      (vendorMenuItemsResult.data as VendorMenuItemRow[]).forEach((row) => {
+        const next = menuMap.get(row.vendor_id) ?? [];
+        next.push({
+          name: row.menu_name,
+          price: row.price,
+          category: row.menu_category ?? "\uAE30\uD0C0",
+        });
+        menuMap.set(row.vendor_id, next);
+      });
+    }
+
     return {
-      vendors: (vendorsResult.data as VendorRow[]).map((row) => mapVendorRow(row)),
+      vendors: (vendorsResult.data as VendorRow[]).map((row) => mapVendorRow(row, menuMap.get(row.id) ?? [])),
       reports: (reportsResult.data as LiveReportRow[]).map(mapReportRow),
       registrationRequests: (registrationResult.data as RegistrationRequestRow[]).map(
         mapRegistrationRequestRow,
@@ -225,6 +263,7 @@ export async function createRegistrationRequest(
     visit_pattern: request.visitPattern,
     business_card_photo: request.businessCardPhoto,
     menu_board_photo: request.menuBoardPhoto,
+    menu_categories: request.menuCategories,
     submitted_at: request.submittedAt,
     duplicate_candidate_ids: request.duplicateCandidateIds,
   });
@@ -246,6 +285,12 @@ export async function createUpdateRequest(request: UpdateRequest): Promise<void>
     vendor_id: request.vendorId,
     field: request.field,
     value: request.value,
+    menu_category: request.menuCategory ?? null,
+    target_menu_name: request.targetMenuName ?? null,
+    current_menu_name: request.currentMenuName ?? null,
+    current_menu_price: request.currentMenuPrice ?? null,
+    proposed_menu_name: request.proposedMenuName ?? null,
+    proposed_menu_price: request.proposedMenuPrice ?? null,
     submitted_at: request.submittedAt,
   });
 

@@ -6,9 +6,19 @@ export type VendorCategory =
   | "\uD2B8\uBF80\uAE30"
   | "\uBD95\uC5B4\uBE75";
 
+export type MenuCategory =
+  | "\uC21C\uB300"
+  | "\uACF1\uCC3D"
+  | "\uD1B5\uB2ED"
+  | "\uC0BC\uACB9\uC0B4"
+  | "\uBAA9\uC0B4"
+  | "\uD0C0\uCF54\uC57C\uB07C"
+  | "\uAE30\uD0C0";
+
 export interface MenuItem {
   name: string;
   price: string;
+  category: MenuCategory;
 }
 
 export interface LiveReport {
@@ -53,6 +63,7 @@ export interface RegistrationRequest {
   visitPattern: string;
   businessCardPhoto: string;
   menuBoardPhoto: string;
+  menuCategories: MenuCategory[];
   submittedAt: string;
   duplicateCandidateIds: string[];
 }
@@ -62,12 +73,17 @@ export interface UpdateRequest {
   vendorId: string;
   field:
     | "menu"
-    | "price"
     | "visitPattern"
     | "businessHours"
     | "location"
     | "phone"
     | "closedNotice";
   value: string;
+  menuCategory?: MenuCategory;
+  targetMenuName?: string;
+  currentMenuName?: string;
+  currentMenuPrice?: string;
+  proposedMenuName?: string;
+  proposedMenuPrice?: string;
   submittedAt: string;
 }

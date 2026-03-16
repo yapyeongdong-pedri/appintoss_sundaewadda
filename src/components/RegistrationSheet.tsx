@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { RegistrationRequest, Vendor } from "../types";
+import type { MenuCategory, RegistrationRequest, Vendor } from "../types";
 import { BottomSheet, Button } from "../ui";
 
 interface RegistrationSheetProps {
@@ -9,6 +9,15 @@ interface RegistrationSheetProps {
   onSubmit: (draft: Omit<RegistrationRequest, "id" | "submittedAt" | "duplicateCandidateIds">) => void;
   onCheckDuplicates: (name: string, location: string) => Vendor[];
 }
+
+const MENU_CATEGORY_OPTIONS: MenuCategory[] = [
+  "\uC21C\uB300",
+  "\uACF1\uCC3D",
+  "\uD1B5\uB2ED",
+  "\uC0BC\uACB9\uC0B4",
+  "\uBAA9\uC0B4",
+  "\uD0C0\uCF54\uC57C\uB07C",
+];
 
 export function RegistrationSheet({
   open,
@@ -22,16 +31,25 @@ export function RegistrationSheet({
   const [visitPattern, setVisitPattern] = useState("");
   const [businessCardPhoto, setBusinessCardPhoto] = useState("");
   const [menuBoardPhoto, setMenuBoardPhoto] = useState("");
+  const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
 
   const candidates = useMemo(() => onCheckDuplicates(name, location), [location, name, onCheckDuplicates]);
 
   const handleSubmit = () => {
-    onSubmit({ name, location, visitPattern, businessCardPhoto, menuBoardPhoto });
+    onSubmit({
+      name,
+      location,
+      visitPattern,
+      businessCardPhoto,
+      menuBoardPhoto,
+      menuCategories,
+    });
     setName("");
     setLocation("");
     setVisitPattern("");
     setBusinessCardPhoto("");
     setMenuBoardPhoto("");
+    setMenuCategories([]);
   };
 
   return (
@@ -79,13 +97,38 @@ export function RegistrationSheet({
           />
         </label>
         <label className="field">
-          <span>{"\uC624\uB294 \uC8FC\uAE30"}</span>
+          <span>{"\uC624\uB294 \uC694\uC77C"}</span>
           <input
             value={visitPattern}
             onChange={(event) => setVisitPattern(event.target.value)}
             placeholder="\uC608: \uD654/\uBAA9/\uD1A0 \uC800\uB141"
           />
         </label>
+        <div className="field">
+          <span>{"\uB300\uD45C \uBA54\uB274 \uBD84\uB958"}</span>
+          <div className="field-picker-grid">
+            {MENU_CATEGORY_OPTIONS.map((category) => {
+              const active = menuCategories.includes(category);
+
+              return (
+                <button
+                  key={category}
+                  type="button"
+                  className={`field-chip ${active ? "field-chip-active" : ""}`}
+                  onClick={() =>
+                    setMenuCategories((prev) =>
+                      prev.includes(category)
+                        ? prev.filter((item) => item !== category)
+                        : [...prev, category],
+                    )
+                  }
+                >
+                  {category}
+                </button>
+              );
+            })}
+          </div>
+        </div>
         <label className="field">
           <span>{"\uBA85\uD568 \uC0AC\uC9C4 \uC124\uBA85"}</span>
           <input

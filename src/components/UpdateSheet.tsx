@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { MenuItem, UpdateRequest, VendorSummary } from "../types";
+import type { MenuCategory, MenuItem, UpdateRequest, VendorSummary } from "../types";
 import { BottomSheet, Button } from "../ui";
 
 interface UpdateSheetProps {
@@ -17,6 +17,16 @@ const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
   { key: "location", label: "\uC704\uCE58" },
   { key: "phone", label: "\uC804\uD654\uBC88\uD638" },
   { key: "closedNotice", label: "\uC601\uC5C5 \uC885\uB8CC" },
+];
+
+const MENU_CATEGORY_OPTIONS: MenuCategory[] = [
+  "\uC21C\uB300",
+  "\uACF1\uCC3D",
+  "\uD1B5\uB2ED",
+  "\uC0BC\uACB9\uC0B4",
+  "\uBAA9\uC0B4",
+  "\uD0C0\uCF54\uC57C\uB07C",
+  "\uAE30\uD0C0",
 ];
 
 function getFieldPlaceholder(field: UpdateRequest["field"]) {
@@ -76,12 +86,14 @@ function buildFallbackMenuItems(vendor: VendorSummary | undefined): MenuItem[] {
   return vendor.menuSummary.map((name, index) => ({
     name,
     price: prices[index] ?? prices[prices.length - 1] ?? "-",
+    category: "\uAE30\uD0C0",
   }));
 }
 
 export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: UpdateSheetProps) {
   const [field, setField] = useState<UpdateRequest["field"]>("menu");
   const [value, setValue] = useState("");
+  const [menuCategory, setMenuCategory] = useState<MenuCategory>("\uAE30\uD0C0");
   const [selectedMenuName, setSelectedMenuName] = useState("");
   const [menuNameDraft, setMenuNameDraft] = useState("");
   const [menuPriceDraft, setMenuPriceDraft] = useState("");
@@ -101,12 +113,14 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
       setSelectedMenuName(firstMenu.name);
       setMenuNameDraft(firstMenu.name);
       setMenuPriceDraft(firstMenu.price);
+      setMenuCategory(firstMenu.category);
       return;
     }
 
     setSelectedMenuName("");
     setMenuNameDraft("");
     setMenuPriceDraft("");
+    setMenuCategory("\uAE30\uD0C0");
   }, [menuItems, open]);
 
   const handleClose = () => {
@@ -115,6 +129,7 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
     setSelectedMenuName("");
     setMenuNameDraft("");
     setMenuPriceDraft("");
+    setMenuCategory("\uAE30\uD0C0");
     onClose();
   };
 
@@ -134,6 +149,12 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
         vendorId,
         field,
         value: `\uB300\uC0C1 \uBA54\uB274: ${currentMenu.name} / \uD604\uC7AC: ${currentMenu.price} / \uC81C\uC548 \uBA54\uB274: ${menuNameDraft.trim()} / \uC81C\uC548 \uAC00\uACA9: ${menuPriceDraft.trim()}`,
+        menuCategory,
+        targetMenuName: currentMenu.name,
+        currentMenuName: currentMenu.name,
+        currentMenuPrice: currentMenu.price,
+        proposedMenuName: menuNameDraft.trim(),
+        proposedMenuPrice: menuPriceDraft.trim(),
       });
       handleClose();
       return;
@@ -144,8 +165,7 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
     }
 
     onSubmit({ vendorId, field, value });
-    setValue("");
-    setField("menu");
+    handleClose();
   };
 
   return (
@@ -217,6 +237,7 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
                       setSelectedMenuName(item.name);
                       setMenuNameDraft(item.name);
                       setMenuPriceDraft(item.price);
+                      setMenuCategory(item.category);
                     }}
                   >
                     {item.name}
@@ -234,6 +255,22 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
                 </div>
               </div>
             ) : null}
+
+            <div className="field">
+              <span>{"\uBA54\uB274 \uBD84\uB958"}</span>
+              <div className="field-picker-grid">
+                {MENU_CATEGORY_OPTIONS.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    className={`field-chip ${menuCategory === category ? "field-chip-active" : ""}`}
+                    onClick={() => setMenuCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <label className="field">
               <span>{"\uC218\uC815\uD560 \uBA54\uB274\uBA85"}</span>
