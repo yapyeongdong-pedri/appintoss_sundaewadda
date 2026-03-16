@@ -23,6 +23,8 @@ interface VendorRow {
   position_x: number;
   position_y: number;
   address: string;
+  latitude?: number | null;
+  longitude?: number | null;
   owner_confirmed_today: boolean;
 }
 
@@ -108,6 +110,8 @@ function mapVendorRow(row: VendorRow, menuItems: MenuItem[]): Vendor {
       x: row.position_x,
       y: row.position_y,
       address: row.address,
+      latitude: row.latitude ?? undefined,
+      longitude: row.longitude ?? undefined,
     },
     ownerConfirmedToday: row.owner_confirmed_today,
   };

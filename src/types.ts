@@ -46,6 +46,8 @@ export interface Vendor {
     x: number;
     y: number;
     address: string;
+    latitude?: number;
+    longitude?: number;
   };
   ownerConfirmedToday?: boolean;
 }

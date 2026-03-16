@@ -20,6 +20,8 @@ export const seedVendors: Vendor[] = [
       x: 18,
       y: 34,
       address: "\uC131\uBD81\uCC9C \uC785\uAD6C \uC0AC\uAC70\uB9AC",
+      latitude: 37.6034,
+      longitude: 127.0177,
     },
   },
   {
@@ -41,6 +43,8 @@ export const seedVendors: Vendor[] = [
       x: 61,
       y: 45,
       address: "\uC815\uB989\uC2DC\uC7A5 \uC55E",
+      latitude: 37.6065,
+      longitude: 127.0124,
     },
   },
   {
@@ -62,6 +66,8 @@ export const seedVendors: Vendor[] = [
       x: 78,
       y: 22,
       address: "\uAD6D\uBBFC\uB300 \uC815\uBB38 \uC544\uB798",
+      latitude: 37.6108,
+      longitude: 127.0298,
     },
     ownerConfirmedToday: true,
   },
