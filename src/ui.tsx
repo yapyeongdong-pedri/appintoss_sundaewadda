@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-type ButtonColor = "primary" | "light" | "dark";
+type ButtonColor = "primary" | "light" | "dark" | "danger";
 type ButtonVariant = "fill" | "weak";
 
 interface ButtonProps {

@@ -68,10 +68,10 @@ export function VendorSheet({
       <section className="detail-panel">
         <header className="detail-top-bar">
           <div className="detail-title-group">
-            <p className="section-eyebrow">{vendor.position.address}</p>
+            <p className="section-eyebrow">{headlineMenu}</p>
             <h3 className="detail-title">{vendor.name}</h3>
             <p className="detail-meta-line">
-              <span>{headlineMenu}</span>
+              <span>{vendor.position.address}</span>
               <span>{vendor.visitPattern}</span>
               <span>{vendor.businessHours}</span>
             </p>
@@ -92,20 +92,20 @@ export function VendorSheet({
               {getStatusLabel(vendor.status)}
             </Badge>
             <div className="detail-report-summary">
-              <span>{"\uC601\uC5C5\uC911 "} {vendor.reportCounts.open}</span>
-              <span>{"\uC885\uB8CC "} {vendor.reportCounts.closed}</span>
-              <span>{"\uBBF8\uD655\uC778 "} {vendor.reportCounts.notYet}</span>
               <span>{formatReportTime(vendor.latestReportAt)}</span>
             </div>
           </div>
 
           <div className="detail-quick-actions">
             <a className="detail-link-button" href={`tel:${vendor.phone}`}>
-              {"\uC804\uD654\uD558\uAE30"}
+              {"\uC804\uD654"}
             </a>
             <a className="detail-link-button" href={`sms:${vendor.phone}`}>
-              {"\uBB38\uC790\uD558\uAE30"}
+              {"\uBB38\uC790"}
             </a>
+            <button type="button" className="detail-text-button">
+              {"\uC800\uC7A5"}
+            </button>
           </div>
         </div>
 
@@ -125,19 +125,6 @@ export function VendorSheet({
             </div>
           </section>
 
-          <section className="detail-section">
-            <p className="section-label">{"\uAE30\uBCF8 \uC815\uBCF4"}</p>
-            <div className="info-list">
-              <div className="info-row">
-                <span>{"\uC8FC\uC694 \uC704\uCE58"}</span>
-                <strong>{vendor.position.address}</strong>
-              </div>
-              <div className="info-row">
-                <span>{"\uD2B8\uB7ED \uC885\uB958"}</span>
-                <strong>{vendor.category}</strong>
-              </div>
-            </div>
-          </section>
         </div>
 
         <footer className="detail-bottom-bar">
@@ -148,25 +135,25 @@ export function VendorSheet({
             display="full"
             onClick={() => onReport(vendor.id, "open")}
           >
-            {"\uC601\uC5C5\uC911 \uC81C\uBCF4"}
-          </Button>
-          <Button
-            color="dark"
-            variant="weak"
-            size="large"
-            display="full"
-            onClick={() => onReport(vendor.id, "notYet")}
-          >
-            {"\uC544\uC9C1 \uC548 \uC634"}
+            {`\uC601\uC5C5\uC911 ${vendor.reportCounts.open}`}
           </Button>
           <Button
             color="light"
             variant="weak"
             size="large"
             display="full"
+            onClick={() => onReport(vendor.id, "notYet")}
+          >
+            {`\uD655\uC778\uC548\uB428 ${vendor.reportCounts.notYet}`}
+          </Button>
+          <Button
+            color="danger"
+            variant="weak"
+            size="large"
+            display="full"
             onClick={() => onReport(vendor.id, "closed")}
           >
-            {"\uC601\uC5C5\uC885\uB8CC"}
+            {`\uC601\uC5C5\uC885\uB8CC ${vendor.reportCounts.closed}`}
           </Button>
         </footer>
       </section>
