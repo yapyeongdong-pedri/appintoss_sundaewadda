@@ -30,7 +30,7 @@ export function RegistrationSheet({
   const [location, setLocation] = useState("");
   const [visitPattern, setVisitPattern] = useState("");
   const [businessCardPhoto, setBusinessCardPhoto] = useState("");
-  const [menuBoardPhoto, setMenuBoardPhoto] = useState("");
+  const [menuBoardPhotos, setMenuBoardPhotos] = useState(["", "", ""]);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
 
   const candidates = useMemo(() => onCheckDuplicates(name, location), [location, name, onCheckDuplicates]);
@@ -41,14 +41,14 @@ export function RegistrationSheet({
       location,
       visitPattern,
       businessCardPhoto,
-      menuBoardPhoto,
+      menuBoardPhotos: menuBoardPhotos.map((item) => item.trim()).filter(Boolean),
       menuCategories,
     });
     setName("");
     setLocation("");
     setVisitPattern("");
     setBusinessCardPhoto("");
-    setMenuBoardPhoto("");
+    setMenuBoardPhotos(["", "", ""]);
     setMenuCategories([]);
   };
 
@@ -72,7 +72,7 @@ export function RegistrationSheet({
             size="xlarge"
             display="full"
             onClick={handleSubmit}
-            disabled={!name || !location || !visitPattern}
+            disabled={!name || !location || !visitPattern || menuBoardPhotos.every((item) => item.trim() === "")}
           >
             {"\uB4F1\uB85D \uC694\uCCAD \uBCF4\uB0B4\uAE30"}
           </Button>
@@ -140,14 +140,26 @@ export function RegistrationSheet({
             placeholder="\uC608: \uBA85\uD568 \uC55E\uBA74 \uC0AC\uC9C4"
           />
         </label>
-        <label className="field">
-          <span>{"\uBA54\uB274\uD310 \uC0AC\uC9C4 \uC124\uBA85"}</span>
-          <input
-            value={menuBoardPhoto}
-            onChange={(event) => setMenuBoardPhoto(event.target.value)}
-            placeholder="\uC608: \uBA54\uB274\uD310 \uC804\uCCB4 \uC0AC\uC9C4"
-          />
-        </label>
+        <div className="field">
+          <span>{"\uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4"}</span>
+          <div className="photo-field-stack">
+            {menuBoardPhotos.map((photo, index) => (
+              <input
+                key={`menu-board-${index}`}
+                value={photo}
+                onChange={(event) =>
+                  setMenuBoardPhotos((prev) =>
+                    prev.map((item, photoIndex) => (photoIndex === index ? event.target.value : item)),
+                  )
+                }
+                placeholder={`\uC608: \uBA54\uB274\uD310 \uC0AC\uC9C4 ${index + 1}`}
+              />
+            ))}
+          </div>
+          <small className="field-help">
+            {"\uBA54\uB274\uC640 \uAC00\uACA9\uC774 \uC798 \uBCF4\uC774\uB294 \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4\uC774 \uC88B\uC544\uC694."}
+          </small>
+        </div>
 
         <div className="hint-card">
           <p className="section-label">{"\uAE30\uC874 \uD2B8\uB7ED \uD6C4\uBCF4"}</p>

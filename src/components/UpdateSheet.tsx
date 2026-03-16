@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import type { MenuCategory, MenuItem, UpdateRequest, VendorSummary } from "../types";
+import { useEffect, useState } from "react";
+import type { UpdateRequest, VendorSummary } from "../types";
 import { BottomSheet, Button } from "../ui";
 
 interface UpdateSheetProps {
@@ -11,7 +11,7 @@ interface UpdateSheetProps {
 }
 
 const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
-  { key: "menu", label: "\uBA54\uB274/\uAC00\uACA9" },
+  { key: "menuBoard", label: "\uBA54\uB274\uD310 \uAD50\uCCB4" },
   { key: "visitPattern", label: "\uC624\uB294 \uC694\uC77C" },
   { key: "businessHours", label: "\uC6B4\uC601 \uC2DC\uAC04" },
   { key: "location", label: "\uC704\uCE58" },
@@ -19,20 +19,10 @@ const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
   { key: "closedNotice", label: "\uD3D0\uC5C5\uC2E0\uACE0" },
 ];
 
-const MENU_CATEGORY_OPTIONS: MenuCategory[] = [
-  "\uC21C\uB300",
-  "\uACF1\uCC3D",
-  "\uD1B5\uB2ED",
-  "\uC0BC\uACB9\uC0B4",
-  "\uBAA9\uC0B4",
-  "\uD0C0\uCF54\uC57C\uB07C",
-  "\uAE30\uD0C0",
-];
-
 function getFieldPlaceholder(field: UpdateRequest["field"]) {
   switch (field) {
-    case "menu":
-      return "\uBA3C\uC800 \uBA54\uB274\uB97C \uACE0\uB974\uACE0 \uC218\uC815\uD560 \uBA54\uB274\uBA85\uACFC \uAC00\uACA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694";
+    case "menuBoard":
+      return "\uC608: \uAC00\uACA9\uC774 \uBC14\uB00C\uACE0 \uCD5C\uC2E0 \uBA54\uB274\uD310\uC73C\uB85C \uBC14\uAFD4\uC694";
     case "visitPattern":
       return "\uC608: \uD654/\uBAA9/\uD1A0 \uC800\uB141";
     case "businessHours":
@@ -69,62 +59,23 @@ function getCurrentFieldValue(vendor: VendorSummary | undefined, field: UpdateRe
   }
 }
 
-function buildFallbackMenuItems(vendor: VendorSummary | undefined): MenuItem[] {
-  if (vendor == null) {
-    return [];
-  }
-
-  if (vendor.menuItems?.length > 0) {
-    return vendor.menuItems;
-  }
-
-  const prices = vendor.priceSummary
-    .split("/")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  return vendor.menuSummary.map((name, index) => ({
-    name,
-    price: prices[index] ?? prices[prices.length - 1] ?? "-",
-    category: "\uAE30\uD0C0",
-  }));
-}
-
 export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: UpdateSheetProps) {
-  const [field, setField] = useState<UpdateRequest["field"]>("menu");
+  const [field, setField] = useState<UpdateRequest["field"]>("menuBoard");
   const [value, setValue] = useState("");
-  const [menuCategory, setMenuCategory] = useState<MenuCategory>("\uAE30\uD0C0");
-  const [selectedMenuName, setSelectedMenuName] = useState("");
-  const [menuNameDraft, setMenuNameDraft] = useState("");
-  const [menuPriceDraft, setMenuPriceDraft] = useState("");
-
-  const menuItems = useMemo(() => buildFallbackMenuItems(vendor), [vendor]);
+  const [menuBoardPhotos, setMenuBoardPhotos] = useState(["", "", ""]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
 
-    setField("menu");
+    setField("menuBoard");
     setValue("");
-
-    if (menuItems.length > 0) {
-      const firstMenu = menuItems[0];
-      setSelectedMenuName(firstMenu.name);
-      setMenuNameDraft(firstMenu.name);
-      setMenuPriceDraft(firstMenu.price);
-      setMenuCategory(firstMenu.category);
-      return;
-    }
-
-    setSelectedMenuName("");
-    setMenuNameDraft("");
-    setMenuPriceDraft("");
-    setMenuCategory("\uAE30\uD0C0");
-  }, [menuItems, open]);
+    setMenuBoardPhotos(["", "", ""]);
+  }, [open]);
 
   useEffect(() => {
-    if (!open || field === "menu") {
+    if (!open || field === "menuBoard") {
       return;
     }
 
@@ -133,11 +84,8 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
 
   const handleClose = () => {
     setValue("");
-    setField("menu");
-    setSelectedMenuName("");
-    setMenuNameDraft("");
-    setMenuPriceDraft("");
-    setMenuCategory("\uAE30\uD0C0");
+    setField("menuBoard");
+    setMenuBoardPhotos(["", "", ""]);
     onClose();
   };
 
@@ -146,23 +94,17 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
       return;
     }
 
-    if (field === "menu") {
-      const currentMenu = menuItems.find((item) => item.name === selectedMenuName);
-
-      if (currentMenu == null || menuNameDraft.trim() === "" || menuPriceDraft.trim() === "") {
+    if (field === "menuBoard") {
+      const nextPhotos = menuBoardPhotos.map((item) => item.trim()).filter(Boolean);
+      if (value.trim() === "" || nextPhotos.length === 0) {
         return;
       }
 
       await onSubmit({
         vendorId,
         field,
-        value: `\uB300\uC0C1 \uBA54\uB274: ${currentMenu.name} / \uD604\uC7AC: ${currentMenu.price} / \uC81C\uC548 \uBA54\uB274: ${menuNameDraft.trim()} / \uC81C\uC548 \uAC00\uACA9: ${menuPriceDraft.trim()}`,
-        menuCategory,
-        targetMenuName: currentMenu.name,
-        currentMenuName: currentMenu.name,
-        currentMenuPrice: currentMenu.price,
-        proposedMenuName: menuNameDraft.trim(),
-        proposedMenuPrice: menuPriceDraft.trim(),
+        value: value.trim(),
+        menuBoardPhotos: nextPhotos,
       });
       handleClose();
       return;
@@ -203,8 +145,8 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
               onClick={handleSubmit}
               disabled={
                 vendorId == null ||
-                (field === "menu"
-                  ? selectedMenuName === "" || menuNameDraft.trim() === "" || menuPriceDraft.trim() === ""
+                (field === "menuBoard"
+                  ? value.trim() === "" || menuBoardPhotos.every((item) => item.trim() === "")
                   : value.trim() === "")
               }
             >
@@ -231,62 +173,37 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
           ))}
         </div>
 
-        {field === "menu" ? (
+        {field === "menuBoard" ? (
           <>
-            <div className="field">
-              <span>{"\uC218\uC815\uD560 \uBA54\uB274 \uC120\uD0DD"}</span>
-              <div className="field-picker-grid">
-                {menuItems.map((item) => (
-                  <button
-                    key={item.name}
-                    type="button"
-                    className={`field-chip ${selectedMenuName === item.name ? "field-chip-active" : ""}`}
-                    onClick={() => {
-                      setSelectedMenuName(item.name);
-                      setMenuNameDraft(item.name);
-                      setMenuPriceDraft(item.price);
-                      setMenuCategory(item.category);
-                    }}
-                  >
-                    {item.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="field">
-              <span>{"\uBA54\uB274 \uBD84\uB958"}</span>
-              <div className="field-picker-grid">
-                {MENU_CATEGORY_OPTIONS.map((category) => (
-                  <button
-                    key={category}
-                    type="button"
-                    className={`field-chip ${menuCategory === category ? "field-chip-active" : ""}`}
-                    onClick={() => setMenuCategory(category)}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <label className="field">
-              <span>{"\uC218\uC815\uD560 \uBA54\uB274\uBA85"}</span>
+              <span>{"\uAD50\uCCB4 \uC0AC\uC720"}</span>
               <input
-                value={menuNameDraft}
-                onChange={(event) => setMenuNameDraft(event.target.value)}
-                placeholder="\uC608: \uCC30\uC21C\uB300"
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
+                placeholder={getFieldPlaceholder(field)}
               />
             </label>
 
-            <label className="field">
-              <span>{"\uC218\uC815\uD560 \uAC00\uACA9"}</span>
-              <input
-                value={menuPriceDraft}
-                onChange={(event) => setMenuPriceDraft(event.target.value)}
-                placeholder="\uC608: 5,000\uC6D0"
-              />
-            </label>
+            <div className="field">
+              <span>{"\uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4"}</span>
+              <div className="photo-field-stack">
+                {menuBoardPhotos.map((photo, index) => (
+                  <input
+                    key={`update-menu-board-${index}`}
+                    value={photo}
+                    onChange={(event) =>
+                      setMenuBoardPhotos((prev) =>
+                        prev.map((item, photoIndex) => (photoIndex === index ? event.target.value : item)),
+                      )
+                    }
+                    placeholder={`\uC608: \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4 ${index + 1}`}
+                  />
+                ))}
+              </div>
+              <small className="field-help">
+                {"\uBA54\uB274\uC640 \uAC00\uACA9\uC774 \uC798 \uBCF4\uC774\uB294 \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4\uC744 \uC62C\uB824\uC8FC\uC138\uC694."}
+              </small>
+            </div>
           </>
         ) : (
           <>

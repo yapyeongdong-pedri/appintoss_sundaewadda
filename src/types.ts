@@ -37,6 +37,7 @@ export interface Vendor {
   category: VendorCategory;
   phone: string;
   menuSummary: string[];
+  menuBoardPhotos: string[];
   menuItems: MenuItem[];
   priceSummary: string;
   businessHours: string;
@@ -66,7 +67,7 @@ export interface RegistrationRequest {
   longitude?: number;
   visitPattern: string;
   businessCardPhoto: string;
-  menuBoardPhoto: string;
+  menuBoardPhotos: string[];
   menuCategories: MenuCategory[];
   submittedAt: string;
   duplicateCandidateIds: string[];
@@ -77,18 +78,14 @@ export interface UpdateRequest {
   vendorId: string;
   field:
     | "menu"
+    | "menuBoard"
     | "visitPattern"
     | "businessHours"
     | "location"
     | "phone"
     | "closedNotice";
   value: string;
-  menuCategory?: MenuCategory;
-  targetMenuName?: string;
-  currentMenuName?: string;
-  currentMenuPrice?: string;
-  proposedMenuName?: string;
-  proposedMenuPrice?: string;
+  menuBoardPhotos?: string[];
   proposedLatitude?: number;
   proposedLongitude?: number;
   submittedAt: string;

@@ -16,6 +16,7 @@ interface VendorRow {
   category: Vendor["category"];
   phone: string;
   menu_summary: string[];
+  menu_board_photos?: string[] | null;
   price_summary: string;
   business_hours: string;
   visit_pattern: string;
@@ -57,6 +58,7 @@ interface RegistrationRequestRow {
   visit_pattern: string;
   business_card_photo: string;
   menu_board_photo: string;
+  menu_board_photos?: string[] | null;
   menu_categories?: RegistrationRequest["menuCategories"] | null;
   submitted_at: string;
   duplicate_candidate_ids: string[];
@@ -67,12 +69,7 @@ interface UpdateRequestRow {
   vendor_id: string;
   field: UpdateRequest["field"];
   value: string;
-  menu_category?: UpdateRequest["menuCategory"] | null;
-  target_menu_name?: string | null;
-  current_menu_name?: string | null;
-  current_menu_price?: string | null;
-  proposed_menu_name?: string | null;
-  proposed_menu_price?: string | null;
+  menu_board_photos?: string[] | null;
   proposed_latitude?: number | null;
   proposed_longitude?: number | null;
   submitted_at: string;
@@ -105,6 +102,7 @@ function mapVendorRow(row: VendorRow, menuItems: MenuItem[]): Vendor {
     category: row.category,
     phone: row.phone,
     menuSummary: row.menu_summary,
+    menuBoardPhotos: row.menu_board_photos ?? [],
     menuItems: menuItems.length > 0 ? menuItems : buildFallbackMenuItems(row.menu_summary, row.price_summary),
     priceSummary: row.price_summary,
     businessHours: row.business_hours,
@@ -142,7 +140,7 @@ function mapRegistrationRequestRow(row: RegistrationRequestRow): RegistrationReq
     longitude: row.longitude ?? undefined,
     visitPattern: row.visit_pattern,
     businessCardPhoto: row.business_card_photo,
-    menuBoardPhoto: row.menu_board_photo,
+    menuBoardPhotos: row.menu_board_photos ?? (row.menu_board_photo ? [row.menu_board_photo] : []),
     menuCategories: row.menu_categories ?? [],
     submittedAt: row.submitted_at,
     duplicateCandidateIds: row.duplicate_candidate_ids ?? [],
@@ -155,12 +153,7 @@ function mapUpdateRequestRow(row: UpdateRequestRow): UpdateRequest {
     vendorId: row.vendor_id,
     field: row.field,
     value: row.value,
-    menuCategory: row.menu_category ?? undefined,
-    targetMenuName: row.target_menu_name ?? undefined,
-    currentMenuName: row.current_menu_name ?? undefined,
-    currentMenuPrice: row.current_menu_price ?? undefined,
-    proposedMenuName: row.proposed_menu_name ?? undefined,
-    proposedMenuPrice: row.proposed_menu_price ?? undefined,
+    menuBoardPhotos: row.menu_board_photos ?? [],
     proposedLatitude: row.proposed_latitude ?? undefined,
     proposedLongitude: row.proposed_longitude ?? undefined,
     submittedAt: row.submitted_at,
@@ -276,7 +269,8 @@ export async function createRegistrationRequest(
     longitude: request.longitude ?? null,
     visit_pattern: request.visitPattern,
     business_card_photo: request.businessCardPhoto,
-    menu_board_photo: request.menuBoardPhoto,
+    menu_board_photo: request.menuBoardPhotos[0] ?? "",
+    menu_board_photos: request.menuBoardPhotos,
     menu_categories: request.menuCategories,
     submitted_at: request.submittedAt,
     duplicate_candidate_ids: request.duplicateCandidateIds,
@@ -299,12 +293,7 @@ export async function createUpdateRequest(request: UpdateRequest): Promise<void>
     vendor_id: request.vendorId,
     field: request.field,
     value: request.value,
-    menu_category: request.menuCategory ?? null,
-    target_menu_name: request.targetMenuName ?? null,
-    current_menu_name: request.currentMenuName ?? null,
-    current_menu_price: request.currentMenuPrice ?? null,
-    proposed_menu_name: request.proposedMenuName ?? null,
-    proposed_menu_price: request.proposedMenuPrice ?? null,
+    menu_board_photos: request.menuBoardPhotos ?? [],
     proposed_latitude: request.proposedLatitude ?? null,
     proposed_longitude: request.proposedLongitude ?? null,
     submitted_at: request.submittedAt,

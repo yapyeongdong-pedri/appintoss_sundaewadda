@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { getStatusLabel, getStatusTone } from "../lib/status";
 import type { VendorSummary } from "../types";
 import { Badge, Button } from "../ui";
@@ -42,30 +43,26 @@ export function VendorSheet({
   onReport,
   onOpenUpdate,
 }: VendorSheetProps) {
+  const [selectedMenuBoardPhoto, setSelectedMenuBoardPhoto] = useState<string>();
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedMenuBoardPhoto(undefined);
+    }
+  }, [open, vendor?.id]);
+
   if (!open || vendor == null) {
     return null;
   }
 
-  const menuItems =
-    vendor.menuItems?.length > 0
-      ? vendor.menuItems
-      : vendor.menuSummary.map((name, index) => {
-          const prices = vendor.priceSummary
-            .split("/")
-            .map((part) => part.trim())
-            .filter(Boolean);
-
-          return {
-            name,
-            price: prices[index] ?? prices[prices.length - 1] ?? "-",
-          };
-        });
   const headlineMenu = vendor.menuSummary.slice(0, 3).join(" / ");
+  const menuBoardPhotos = vendor.menuBoardPhotos ?? [];
 
   return (
-    <div className="detail-overlay" role="dialog" aria-modal="true">
-      <button type="button" className="detail-dismiss" onClick={onClose} aria-label="Close detail" />
-      <section className="detail-panel">
+    <>
+      <div className="detail-overlay" role="dialog" aria-modal="true">
+        <button type="button" className="detail-dismiss" onClick={onClose} aria-label="Close detail" />
+        <section className="detail-panel">
         <header className="detail-top-bar">
           <div className="detail-title-group">
             <p className="section-eyebrow">{headlineMenu}</p>
@@ -112,17 +109,30 @@ export function VendorSheet({
         <div className="detail-body">
           <section className="detail-section">
             <div className="detail-section-head">
-              <p className="section-label">{"\uBA54\uB274 \uBC0F \uAC00\uACA9"}</p>
-              <span className="muted-text">{menuItems.length}</span>
+              <p className="section-label">{"\uCD5C\uC2E0 \uBA54\uB274\uD310"}</p>
+              <span className="muted-text">{menuBoardPhotos.length}</span>
             </div>
-            <div className="menu-list">
-              {menuItems.map((item) => (
-                <div className="menu-row" key={`${vendor.id}-${item.name}`}>
-                  <strong>{item.name}</strong>
-                  <span>{item.price}</span>
-                </div>
-              ))}
-            </div>
+            {menuBoardPhotos.length === 0 ? (
+              <div className="menu-board-empty">
+                {"\uB4F1\uB85D\uB41C \uBA54\uB274\uD310 \uC0AC\uC9C4\uC774 \uC544\uC9C1 \uC5C6\uC5B4\uC694."}
+              </div>
+            ) : (
+              <div className="menu-board-gallery">
+                {menuBoardPhotos.map((photo, index) => (
+                  <button
+                    key={`${vendor.id}-board-${index}`}
+                    type="button"
+                    className="menu-board-card"
+                    onClick={() => setSelectedMenuBoardPhoto(photo)}
+                  >
+                    <div className="menu-board-card-image">
+                      <span className="menu-board-card-badge">{`\uBA54\uB274\uD310 ${index + 1}`}</span>
+                      <strong>{photo}</strong>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </section>
 
         </div>
@@ -156,7 +166,32 @@ export function VendorSheet({
             {`\uC601\uC5C5\uC885\uB8CC ${vendor.reportCounts.closed}`}
           </Button>
         </footer>
-      </section>
-    </div>
+        </section>
+      </div>
+
+      {selectedMenuBoardPhoto ? (
+        <div className="lightbox-overlay" role="dialog" aria-modal="true">
+          <button
+            type="button"
+            className="lightbox-dismiss"
+            onClick={() => setSelectedMenuBoardPhoto(undefined)}
+            aria-label="Close image preview"
+          />
+          <section className="lightbox-panel">
+            <button
+              type="button"
+              className="lightbox-close"
+              onClick={() => setSelectedMenuBoardPhoto(undefined)}
+            >
+              {"\u2715"}
+            </button>
+            <div className="lightbox-image">
+              <span className="menu-board-card-badge">{"\uBA54\uB274\uD310 \uD655\uB300"}</span>
+              <strong>{selectedMenuBoardPhoto}</strong>
+            </div>
+          </section>
+        </div>
+      ) : null}
+    </>
   );
 }
