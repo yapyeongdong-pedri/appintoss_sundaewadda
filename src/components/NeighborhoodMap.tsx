@@ -149,8 +149,8 @@ export function NeighborhoodMap({
           zIndex: isSelected ? 10 : 1,
           image: new kakao.maps.MarkerImage(
             buildMarkerImage(vendor.status, isSelected),
-            new kakao.maps.Size(isSelected ? 30 : 24, isSelected ? 42 : 34),
-            { offset: new kakao.maps.Point(isSelected ? 15 : 12, isSelected ? 42 : 34) },
+            new kakao.maps.Size(isSelected ? 44 : 36, isSelected ? 58 : 48),
+            { offset: new kakao.maps.Point(isSelected ? 22 : 18, isSelected ? 58 : 48) },
           ),
         });
 
@@ -367,10 +367,13 @@ function buildMarkerImage(status: VendorSummary["status"], selected: boolean) {
         : "#3182f6";
 
   const stroke = selected ? "#191f28" : "#ffffff";
+  const glow = selected ? "rgba(25,31,40,0.28)" : "rgba(49,130,246,0.22)";
   const svg = `
-    <svg width="32" height="44" viewBox="0 0 32 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M16 43C16 43 30 26.5 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 26.5 16 43 16 43Z" fill="${fill}" stroke="${stroke}" stroke-width="${selected ? 3 : 2}"/>
-      <circle cx="16" cy="16" r="5" fill="white"/>
+    <svg width="44" height="58" viewBox="0 0 44 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="22" cy="52" rx="12" ry="4" fill="${glow}"/>
+      <path d="M22 48C22 48 40 30.5 40 17C40 7.61116 31.3888 0 22 0C12.6112 0 4 7.61116 4 17C4 30.5 22 48 22 48Z" fill="${fill}" stroke="${stroke}" stroke-width="${selected ? 3.5 : 2.5}"/>
+      <circle cx="22" cy="17" r="7" fill="white"/>
+      <circle cx="22" cy="17" r="3" fill="${fill}"/>
     </svg>
   `.trim();
 
