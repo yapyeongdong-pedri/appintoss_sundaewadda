@@ -1,4 +1,4 @@
-import type { LiveReport, MenuItem, RegistrationRequest, UpdateRequest, Vendor } from "../types";
+import type { LiveReport, MenuItem, RegistrationRequest, UpdateRequest, Vendor, VisitRule } from "../types";
 import {
   loadLocalRegistrationRequests,
   loadLocalReports,
@@ -20,6 +20,7 @@ interface VendorRow {
   price_summary: string;
   business_hours: string;
   visit_pattern: string;
+  visit_rules?: VisitRule[] | null;
   description: string;
   position_x: number;
   position_y: number;
@@ -56,6 +57,7 @@ interface RegistrationRequestRow {
   latitude?: number | null;
   longitude?: number | null;
   visit_pattern: string;
+  visit_rules?: VisitRule[] | null;
   business_card_photo: string;
   menu_board_photo: string;
   menu_board_photos?: string[] | null;
@@ -69,6 +71,7 @@ interface UpdateRequestRow {
   vendor_id: string;
   field: UpdateRequest["field"];
   value: string;
+  visit_rules?: VisitRule[] | null;
   menu_board_photos?: string[] | null;
   proposed_latitude?: number | null;
   proposed_longitude?: number | null;
@@ -107,6 +110,7 @@ function mapVendorRow(row: VendorRow, menuItems: MenuItem[]): Vendor {
     priceSummary: row.price_summary,
     businessHours: row.business_hours,
     visitPattern: row.visit_pattern,
+    visitRules: row.visit_rules ?? undefined,
     description: row.description,
     position: {
       x: row.position_x,
@@ -139,6 +143,7 @@ function mapRegistrationRequestRow(row: RegistrationRequestRow): RegistrationReq
     latitude: row.latitude ?? undefined,
     longitude: row.longitude ?? undefined,
     visitPattern: row.visit_pattern,
+    visitRules: row.visit_rules ?? undefined,
     businessCardPhoto: row.business_card_photo,
     menuBoardPhotos: row.menu_board_photos ?? (row.menu_board_photo ? [row.menu_board_photo] : []),
     menuCategories: row.menu_categories ?? [],
@@ -153,6 +158,7 @@ function mapUpdateRequestRow(row: UpdateRequestRow): UpdateRequest {
     vendorId: row.vendor_id,
     field: row.field,
     value: row.value,
+    visitRules: row.visit_rules ?? undefined,
     menuBoardPhotos: row.menu_board_photos ?? [],
     proposedLatitude: row.proposed_latitude ?? undefined,
     proposedLongitude: row.proposed_longitude ?? undefined,
@@ -261,7 +267,7 @@ export async function createRegistrationRequest(
     return;
   }
 
-  const { error } = await supabase.from("registration_requests").insert({
+  const legacyPayload = {
     id: request.id,
     name: request.name,
     location: request.location,
@@ -274,11 +280,26 @@ export async function createRegistrationRequest(
     menu_categories: request.menuCategories,
     submitted_at: request.submittedAt,
     duplicate_candidate_ids: request.duplicateCandidateIds,
-  });
+  };
 
-  if (error) {
-    console.warn("Supabase registration request insert failed; local fallback kept.", error);
+  const payloadWithVisitRules =
+    request.visitRules != null && request.visitRules.length > 0
+      ? { ...legacyPayload, visit_rules: request.visitRules }
+      : legacyPayload;
+
+  const { error } = await supabase.from("registration_requests").insert(payloadWithVisitRules);
+  if (!error) {
+    return;
   }
+
+  if ("visit_rules" in payloadWithVisitRules) {
+    const fallbackInsert = await supabase.from("registration_requests").insert(legacyPayload);
+    if (!fallbackInsert.error) {
+      return;
+    }
+  }
+
+  console.warn("Supabase registration request insert failed; local fallback kept.", error);
 }
 
 export async function createUpdateRequest(request: UpdateRequest): Promise<void> {
@@ -288,7 +309,7 @@ export async function createUpdateRequest(request: UpdateRequest): Promise<void>
     return;
   }
 
-  const { error } = await supabase.from("update_requests").insert({
+  const legacyPayload = {
     id: request.id,
     vendor_id: request.vendorId,
     field: request.field,
@@ -297,9 +318,24 @@ export async function createUpdateRequest(request: UpdateRequest): Promise<void>
     proposed_latitude: request.proposedLatitude ?? null,
     proposed_longitude: request.proposedLongitude ?? null,
     submitted_at: request.submittedAt,
-  });
+  };
 
-  if (error) {
-    console.warn("Supabase update request insert failed; local fallback kept.", error);
+  const payloadWithVisitRules =
+    request.visitRules != null && request.visitRules.length > 0
+      ? { ...legacyPayload, visit_rules: request.visitRules }
+      : legacyPayload;
+
+  const { error } = await supabase.from("update_requests").insert(payloadWithVisitRules);
+  if (!error) {
+    return;
   }
+
+  if ("visit_rules" in payloadWithVisitRules) {
+    const fallbackInsert = await supabase.from("update_requests").insert(legacyPayload);
+    if (!fallbackInsert.error) {
+      return;
+    }
+  }
+
+  console.warn("Supabase update request insert failed; local fallback kept.", error);
 }

@@ -15,6 +15,14 @@ export type MenuCategory =
   | "\uD0C0\uCF54\uC57C\uB07C"
   | "\uAE30\uD0C0";
 
+export type Weekday = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+export type MonthlyNth = 1 | 2 | 3 | 4 | "last";
+export type VisitRule =
+  | { mode: "daily" }
+  | { mode: "weekly"; interval: 1 | 2; weekdays: Weekday[] }
+  | { mode: "monthlyNth"; nth: MonthlyNth; weekdays: Weekday[] }
+  | { mode: "custom"; text: string };
+
 export interface MenuItem {
   name: string;
   price: string;
@@ -42,6 +50,7 @@ export interface Vendor {
   priceSummary: string;
   businessHours: string;
   visitPattern: string;
+  visitRules?: VisitRule[];
   description: string;
   position: {
     x: number;
@@ -66,6 +75,7 @@ export interface RegistrationRequest {
   latitude?: number;
   longitude?: number;
   visitPattern: string;
+  visitRules?: VisitRule[];
   businessCardPhoto: string;
   menuBoardPhotos: string[];
   menuCategories: MenuCategory[];
@@ -85,6 +95,7 @@ export interface UpdateRequest {
     | "phone"
     | "closedNotice";
   value: string;
+  visitRules?: VisitRule[];
   menuBoardPhotos?: string[];
   proposedLatitude?: number;
   proposedLongitude?: number;

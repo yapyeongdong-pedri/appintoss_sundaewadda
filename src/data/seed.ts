@@ -20,6 +20,7 @@ export const seedVendors: Vendor[] = [
     priceSummary: "4,000\uC6D0 / 9,000\uC6D0",
     businessHours: "\uC624\uD6C4 5\uC2DC ~ \uBC24 11\uC2DC",
     visitPattern: "\uD654/\uBAA9/\uD1A0 \uC800\uB141",
+    visitRules: [{ mode: "weekly", interval: 1, weekdays: ["tue", "thu", "sat"] }],
     description: "\uD1F4\uADFC \uC2DC\uAC04 \uC704\uC8FC",
     position: {
       x: 18,
@@ -47,6 +48,7 @@ export const seedVendors: Vendor[] = [
     priceSummary: "7,000\uC6D0 / 12,000\uC6D0",
     businessHours: "\uC624\uD6C4 6\uC2DC ~ \uBC24 12\uC2DC",
     visitPattern: "\uAE08/\uD1A0 \uBC24",
+    visitRules: [{ mode: "weekly", interval: 1, weekdays: ["fri", "sat"] }],
     description: "\uC8FC\uB9D0 \uC800\uB141 \uC704\uC8FC",
     position: {
       x: 61,
@@ -74,6 +76,7 @@ export const seedVendors: Vendor[] = [
     priceSummary: "3,500\uC6D0 / 8,000\uC6D0",
     businessHours: "\uC624\uD6C4 4\uC2DC ~ \uBC24 10\uC2DC",
     visitPattern: "\uD3C9\uC77C \uC800\uB141",
+    visitRules: [{ mode: "weekly", interval: 1, weekdays: ["mon", "tue", "wed", "thu", "fri"] }],
     description: "\uD559\uAD50 \uC55E \uACE8\uBAA9",
     position: {
       x: 78,

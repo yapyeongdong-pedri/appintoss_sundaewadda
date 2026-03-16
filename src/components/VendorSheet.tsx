@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { isImageSource } from "../lib/imageFiles";
 import { getStatusLabel, getStatusTone } from "../lib/status";
+import { formatVisitRules } from "../lib/visitRules";
 import type { VendorSummary } from "../types";
 import { Badge, Button } from "../ui";
 
@@ -58,6 +59,7 @@ export function VendorSheet({
 
   const headlineMenu = vendor.menuSummary.slice(0, 3).join(" / ");
   const menuBoardPhotos = vendor.menuBoardPhotos ?? [];
+  const visitPatternLabel = formatVisitRules(vendor.visitRules, vendor.visitPattern);
 
   return (
     <>
@@ -69,9 +71,18 @@ export function VendorSheet({
             <p className="section-eyebrow">{headlineMenu}</p>
             <h3 className="detail-title">{vendor.name}</h3>
             <p className="detail-meta-line">
-              <span>{vendor.position.address}</span>
-              <span>{vendor.visitPattern}</span>
-              <span>{vendor.businessHours}</span>
+              <span className="detail-meta-item" title={vendor.position.address}>
+                <strong>{"\uC601\uC5C5\uC7A5\uC18C"}</strong>
+                <span>{vendor.position.address}</span>
+              </span>
+              <span className="detail-meta-item" title={visitPatternLabel}>
+                <strong>{"\uC601\uC5C5\uC8FC\uAE30"}</strong>
+                <span>{visitPatternLabel}</span>
+              </span>
+              <span className="detail-meta-item" title={vendor.businessHours}>
+                <strong>{"\uC601\uC5C5\uC2DC\uAC04"}</strong>
+                <span>{vendor.businessHours}</span>
+              </span>
             </p>
           </div>
           <div className="detail-top-actions">

@@ -1,6 +1,8 @@
 import { ChangeEvent, useMemo, useRef, useState } from "react";
 import { readFilesAsDataUrls } from "../lib/imageFiles";
+import { areVisitRulesValid, formatVisitRules } from "../lib/visitRules";
 import type { MenuCategory, RegistrationRequest, Vendor } from "../types";
+import { VisitRuleEditor } from "./VisitRuleEditor";
 import { BottomSheet, Button } from "../ui";
 
 interface RegistrationSheetProps {
@@ -29,7 +31,7 @@ export function RegistrationSheet({
 }: RegistrationSheetProps) {
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
-  const [visitPattern, setVisitPattern] = useState("");
+  const [visitRules, setVisitRules] = useState<RegistrationRequest["visitRules"]>([]);
   const [businessCardPhoto, setBusinessCardPhoto] = useState("");
   const [menuBoardPhotos, setMenuBoardPhotos] = useState(["", "", ""]);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
@@ -66,14 +68,15 @@ export function RegistrationSheet({
     await onSubmit({
       name,
       location,
-      visitPattern,
+      visitPattern: formatVisitRules(visitRules),
+      visitRules,
       businessCardPhoto,
       menuBoardPhotos: menuBoardPhotos.map((item) => item.trim()).filter(Boolean),
       menuCategories,
     });
     setName("");
     setLocation("");
-    setVisitPattern("");
+    setVisitRules([]);
     setBusinessCardPhoto("");
     setMenuBoardPhotos(["", "", ""]);
     setMenuCategories([]);
@@ -99,7 +102,12 @@ export function RegistrationSheet({
             size="xlarge"
             display="full"
             onClick={handleSubmit}
-            disabled={!name || !location || !visitPattern || menuBoardPhotos.every((item) => item.trim() === "")}
+            disabled={
+              !name ||
+              !location ||
+              !areVisitRulesValid(visitRules ?? []) ||
+              menuBoardPhotos.every((item) => item.trim() === "")
+            }
           >
             {"\uB4F1\uB85D \uC694\uCCAD \uBCF4\uB0B4\uAE30"}
           </Button>
@@ -126,14 +134,10 @@ export function RegistrationSheet({
             {"\uC785\uB825\uD55C \uC704\uCE58\uB97C \uAE30\uC900\uC73C\uB85C \uCE74\uCE74\uC624\uB9F5 \uC88C\uD45C\uB97C \uD568\uAED8 \uC800\uC7A5\uD574\uC694."}
           </small>
         </label>
-        <label className="field">
-          <span>{"\uC624\uB294 \uC694\uC77C"}</span>
-          <input
-            value={visitPattern}
-            onChange={(event) => setVisitPattern(event.target.value)}
-            placeholder="\uC608: \uD654/\uBAA9/\uD1A0 \uC800\uB141"
-          />
-        </label>
+        <div className="field">
+          <span>{"\uC6B4\uC601\uC694\uC77C / \uC6B4\uC601\uC8FC\uAE30"}</span>
+          <VisitRuleEditor value={visitRules ?? []} onChange={setVisitRules} />
+        </div>
         <div className="field">
           <span>{"\uB300\uD45C \uBA54\uB274 \uBD84\uB958"}</span>
           <div className="field-picker-grid">

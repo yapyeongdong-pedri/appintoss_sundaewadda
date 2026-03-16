@@ -1,4 +1,5 @@
 import type { RegistrationRequest, UpdateRequest } from "../types";
+import { formatVisitRules } from "../lib/visitRules";
 import { Badge, Button } from "../ui";
 
 interface RequestsScreenProps {
@@ -27,9 +28,9 @@ function getUpdateFieldLabel(field: UpdateRequest["field"]) {
     case "menuBoard":
       return "\uBA54\uB274\uD310 \uAD50\uCCB4";
     case "visitPattern":
-      return "\uC624\uB294 \uC694\uC77C";
+      return "\uC6B4\uC601 \uC694\uC77C";
     case "businessHours":
-      return "\uC6B4\uC601 \uC2DC\uAC04";
+      return "\uC601\uC5C5\uC2DC\uAC04";
     case "location":
       return "\uC704\uCE58";
     case "phone":
@@ -113,7 +114,7 @@ export function RequestsScreen({
                       </Badge>
                     </div>
                     <div className="request-meta-row">
-                      <span>{request.visitPattern}</span>
+                      <span>{formatVisitRules(request.visitRules, request.visitPattern)}</span>
                       <span>{formatTimeLabel(request.submittedAt)}</span>
                     </div>
                   </article>

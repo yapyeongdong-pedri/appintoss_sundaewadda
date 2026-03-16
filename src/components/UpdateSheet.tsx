@@ -1,6 +1,11 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { parseBusinessHours, formatBusinessHours, type BusinessHoursValue } from "../lib/businessHours";
 import { readFilesAsDataUrls } from "../lib/imageFiles";
+import { areVisitRulesValid, buildCustomVisitRules, formatVisitRules } from "../lib/visitRules";
 import type { UpdateRequest, VendorSummary } from "../types";
+import { BusinessHoursEditor } from "./BusinessHoursEditor";
+import { LocationPicker } from "./LocationPicker";
+import { VisitRuleEditor } from "./VisitRuleEditor";
 import { BottomSheet, Button } from "../ui";
 
 interface UpdateSheetProps {
@@ -13,8 +18,8 @@ interface UpdateSheetProps {
 
 const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
   { key: "menuBoard", label: "\uBA54\uB274\uD310 \uAD50\uCCB4" },
-  { key: "visitPattern", label: "\uC624\uB294 \uC694\uC77C" },
-  { key: "businessHours", label: "\uC6B4\uC601 \uC2DC\uAC04" },
+  { key: "visitPattern", label: "\uC6B4\uC601 \uC694\uC77C" },
+  { key: "businessHours", label: "\uC601\uC5C5\uC2DC\uAC04" },
   { key: "location", label: "\uC704\uCE58" },
   { key: "phone", label: "\uC804\uD654\uBC88\uD638" },
   { key: "closedNotice", label: "\uD3D0\uC5C5\uC2E0\uACE0" },
@@ -23,17 +28,17 @@ const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
 function getFieldPlaceholder(field: UpdateRequest["field"]) {
   switch (field) {
     case "menuBoard":
-      return "\uC608: \uAC00\uACA9\uC774 \uBC14\uB00C\uACE0 \uCD5C\uC2E0 \uBA54\uB274\uD310\uC73C\uB85C \uBC14\uAFD4\uC694";
+      return "\uC608: \uAC00\uACA9 \uBCC0\uB3D9\uC73C\uB85C \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4\uC73C\uB85C \uAD50\uCCB4\uD574\uC694";
     case "visitPattern":
-      return "\uC608: \uD654/\uBAA9/\uD1A0 \uC800\uB141";
+      return "";
     case "businessHours":
-      return "\uC608: \uC624\uD6C4 6\uC2DC ~ \uBC24 11\uC2DC";
+      return "";
     case "location":
       return "\uC608: \uC815\uB989\uC2DC\uC7A5 \uC785\uAD6C \uC55E";
     case "phone":
       return "\uC608: 010-1234-5678";
     case "closedNotice":
-      return "\uC608: \uC694\uC998 \uC774 \uC790\uB9AC\uC5D0\uC11C \uBCF4\uAE30 \uD798\uB4E4\uC5B4\uC694";
+      return "\uC608: \uC5C5\uCCB4 \uC0AC\uC7A5\uB2D8\uC73C\uB85C\uBD80\uD130 \uC774\uC81C \uC548 \uC628\uB2E4\uACE0 \uB4E4\uC5C8\uC5B4\uC694";
     default:
       return "\uC218\uC815\uD560 \uB0B4\uC6A9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694";
   }
@@ -63,6 +68,10 @@ function getCurrentFieldValue(vendor: VendorSummary | undefined, field: UpdateRe
 export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: UpdateSheetProps) {
   const [field, setField] = useState<UpdateRequest["field"]>("menuBoard");
   const [value, setValue] = useState("");
+  const [visitRules, setVisitRules] = useState<UpdateRequest["visitRules"]>([]);
+  const [businessHours, setBusinessHours] = useState<BusinessHoursValue>({ startHour: 18, endHour: 24 });
+  const [locationDescription, setLocationDescription] = useState("");
+  const [locationPin, setLocationPin] = useState<{ latitude?: number; longitude?: number }>({});
   const [menuBoardPhotos, setMenuBoardPhotos] = useState(["", "", ""]);
   const menuBoardInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -73,12 +82,32 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
 
     setField("menuBoard");
     setValue("");
+    setVisitRules([]);
+    setBusinessHours({ startHour: 18, endHour: 24 });
+    setLocationDescription("");
+    setLocationPin({});
     setMenuBoardPhotos(["", "", ""]);
   }, [open]);
 
   useEffect(() => {
     if (!open || field === "menuBoard") {
       return;
+    }
+
+    if (field === "visitPattern") {
+      setVisitRules(vendor?.visitRules ?? buildCustomVisitRules(vendor?.visitPattern ?? ""));
+    }
+
+    if (field === "businessHours") {
+      setBusinessHours(parseBusinessHours(vendor?.businessHours) ?? { startHour: 18, endHour: 24 });
+    }
+
+    if (field === "location") {
+      setLocationDescription(vendor?.position.address ?? "");
+      setLocationPin({
+        latitude: vendor?.position.latitude,
+        longitude: vendor?.position.longitude,
+      });
     }
 
     setValue(getCurrentFieldValue(vendor, field));
@@ -99,6 +128,10 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
   const handleClose = () => {
     setValue("");
     setField("menuBoard");
+    setVisitRules([]);
+    setBusinessHours({ startHour: 18, endHour: 24 });
+    setLocationDescription("");
+    setLocationPin({});
     setMenuBoardPhotos(["", "", ""]);
     onClose();
   };
@@ -119,6 +152,51 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
         field,
         value: value.trim(),
         menuBoardPhotos: nextPhotos,
+      });
+      handleClose();
+      return;
+    }
+
+    if (field === "visitPattern") {
+      if (!areVisitRulesValid(visitRules ?? [])) {
+        return;
+      }
+
+      await onSubmit({
+        vendorId,
+        field,
+        value: formatVisitRules(visitRules),
+        visitRules,
+      });
+      handleClose();
+      return;
+    }
+
+    if (field === "businessHours") {
+      if (businessHours.startHour >= businessHours.endHour) {
+        return;
+      }
+
+      await onSubmit({
+        vendorId,
+        field,
+        value: formatBusinessHours(businessHours),
+      });
+      handleClose();
+      return;
+    }
+
+    if (field === "location") {
+      if (locationDescription.trim() === "") {
+        return;
+      }
+
+      await onSubmit({
+        vendorId,
+        field,
+        value: locationDescription.trim(),
+        proposedLatitude: locationPin.latitude,
+        proposedLongitude: locationPin.longitude,
       });
       handleClose();
       return;
@@ -161,7 +239,13 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
                 vendorId == null ||
                 (field === "menuBoard"
                   ? value.trim() === "" || menuBoardPhotos.every((item) => item.trim() === "")
-                  : value.trim() === "")
+                  : field === "visitPattern"
+                    ? !areVisitRulesValid(visitRules ?? [])
+                    : field === "businessHours"
+                      ? businessHours.startHour >= businessHours.endHour
+                      : field === "location"
+                        ? locationDescription.trim() === ""
+                    : value.trim() === "")
               }
             >
               {"\uC218\uC815 \uC694\uCCAD"}
@@ -189,15 +273,6 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
 
         {field === "menuBoard" ? (
           <>
-            <label className="field">
-              <span>{"\uAD50\uCCB4 \uC0AC\uC720"}</span>
-              <input
-                value={value}
-                onChange={(event) => setValue(event.target.value)}
-                placeholder={getFieldPlaceholder(field)}
-              />
-            </label>
-
             <div className="field">
               <span>{"\uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4"}</span>
               <input
@@ -234,7 +309,37 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
                 {"\uBA54\uB274\uC640 \uAC00\uACA9\uC774 \uC798 \uBCF4\uC774\uB294 \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4\uC744 \uC62C\uB824\uC8FC\uC138\uC694."}
               </small>
             </div>
+
+            <label className="field">
+              <span>{"\uAD50\uCCB4 \uC0AC\uC720"}</span>
+              <input
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
+                placeholder={getFieldPlaceholder(field)}
+              />
+            </label>
           </>
+        ) : field === "visitPattern" ? (
+          <div className="field">
+            <span>{"\uC6B4\uC601 \uC694\uC77C / \uC6B4\uC601 \uC8FC\uAE30"}</span>
+            <VisitRuleEditor value={visitRules ?? []} onChange={setVisitRules} />
+          </div>
+        ) : field === "businessHours" ? (
+          <div className="field">
+            <span>{"\uC601\uC5C5\uC2DC\uAC04"}</span>
+            <BusinessHoursEditor value={businessHours} onChange={setBusinessHours} />
+          </div>
+        ) : field === "location" ? (
+          <div className="field">
+            <span>{"\uC704\uCE58 \uC124\uBA85 / \uC815\uD655\uD55C \uD540"}</span>
+            <LocationPicker
+              description={locationDescription}
+              latitude={locationPin.latitude}
+              longitude={locationPin.longitude}
+              onDescriptionChange={setLocationDescription}
+              onPinChange={setLocationPin}
+            />
+          </div>
         ) : (
           <>
             <label className="field">
