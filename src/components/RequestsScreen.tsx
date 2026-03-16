@@ -135,7 +135,7 @@ export function RequestsScreen({
                     </Badge>
                   </div>
                   <div className="request-meta-row">
-                    <span>{request.vendorId}</span>
+                    <span>{"\uAE30\uC874 \uD2B8\uB7ED \uC815\uBCF4 \uC218\uC815"}</span>
                     <span>{formatTimeLabel(request.submittedAt)}</span>
                   </div>
                 </article>
