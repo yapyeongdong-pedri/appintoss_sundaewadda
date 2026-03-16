@@ -19,6 +19,7 @@ export function NeighborhoodMap({
   const mapInstanceRef = useRef<any>(null);
   const markerRefs = useRef<Map<string, any>>(new Map());
   const currentLocationMarkerRef = useRef<any>(null);
+  const shouldFocusCurrentLocationRef = useRef(false);
   const [mapMode, setMapMode] = useState<"loading" | "live" | "fallback">(() =>
     import.meta.env.VITE_KAKAO_MAP_APP_KEY ? "loading" : "fallback",
   );
@@ -157,7 +158,7 @@ export function NeighborhoodMap({
         markerRefs.current.set(vendor.id, marker);
       });
 
-      if (resolved.length > 0) {
+      if (resolved.length > 0 && !shouldFocusCurrentLocationRef.current) {
         map.setBounds(bounds, 44, 24, 24, 24);
       }
 
@@ -183,6 +184,14 @@ export function NeighborhoodMap({
         } else {
           currentLocationMarkerRef.current.setMap(map);
           currentLocationMarkerRef.current.setPosition(currentPosition);
+        }
+
+        if (shouldFocusCurrentLocationRef.current) {
+          map.panTo(currentPosition);
+          if (typeof map.setLevel === "function") {
+            map.setLevel(3);
+          }
+          shouldFocusCurrentLocationRef.current = false;
         }
       } else if (currentLocationMarkerRef.current != null) {
         currentLocationMarkerRef.current.setMap(null);
@@ -216,18 +225,11 @@ export function NeighborhoodMap({
           longitude: position.coords.longitude,
         };
 
+        shouldFocusCurrentLocationRef.current = true;
         setCurrentLocation(nextLocation);
         setLocationConsentOpen(false);
         setIsLocating(false);
         setMapNotice("\uD604\uC7AC \uC704\uCE58\uB85C \uC774\uB3D9\uD588\uC5B4\uC694.");
-
-        const kakao = (window as Window & { kakao?: any }).kakao;
-        if (mapMode === "live" && kakao?.maps != null && mapInstanceRef.current != null) {
-          mapInstanceRef.current.panTo(new kakao.maps.LatLng(nextLocation.latitude, nextLocation.longitude));
-          if (typeof mapInstanceRef.current.setLevel === "function") {
-            mapInstanceRef.current.setLevel(3);
-          }
-        }
       },
       () => {
         setIsLocating(false);
