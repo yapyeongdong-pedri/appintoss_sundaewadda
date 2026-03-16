@@ -13,6 +13,12 @@ export function UpdateSheet({ open, vendorId, onClose, onSubmit }: UpdateSheetPr
   const [field, setField] = useState<UpdateRequest["field"]>("menu");
   const [value, setValue] = useState("");
 
+  const handleClose = () => {
+    setValue("");
+    setField("menu");
+    onClose();
+  };
+
   const handleSubmit = () => {
     if (vendorId == null || value.trim() === "") {
       return;
@@ -26,7 +32,7 @@ export function UpdateSheet({ open, vendorId, onClose, onSubmit }: UpdateSheetPr
   return (
     <BottomSheet
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       hasTextField
       header={<BottomSheet.Header>{"\uC815\uBCF4 \uC218\uC815 \uC694\uCCAD"}</BottomSheet.Header>}
       headerDescription={
@@ -35,22 +41,29 @@ export function UpdateSheet({ open, vendorId, onClose, onSubmit }: UpdateSheetPr
         </BottomSheet.HeaderDescription>
       }
       cta={
-        <BottomSheet.CTA>
-          <Button
-            color="primary"
-            variant="fill"
-            size="xlarge"
-            display="full"
-            onClick={handleSubmit}
-            disabled={vendorId == null || value.trim() === ""}
-          >
-            {"\uC218\uC815 \uC694\uCCAD \uBCF4\uB0B4\uAE30"}
-          </Button>
-        </BottomSheet.CTA>
+        <BottomSheet.DoubleCTA
+          leftButton={
+            <Button color="light" variant="weak" size="large" display="full" onClick={handleClose}>
+              {"\uCDE8\uC18C"}
+            </Button>
+          }
+          rightButton={
+            <Button
+              color="primary"
+              variant="fill"
+              size="large"
+              display="full"
+              onClick={handleSubmit}
+              disabled={vendorId == null || value.trim() === ""}
+            >
+              {"\uC218\uC815 \uC694\uCCAD"}
+            </Button>
+          }
+        />
       }
     >
       <div className="sheet-content">
-        <div className="field-picker">
+        <div className="field-picker-grid">
           {[
             ["menu", "\uBA54\uB274\uBA85"],
             ["price", "\uAC00\uACA9"],

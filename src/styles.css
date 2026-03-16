@@ -172,7 +172,7 @@ button {
 .sheet-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 140;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -609,6 +609,19 @@ button {
   color: #1b64da;
 }
 
+.field-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.field-picker-grid .field-chip {
+  padding: 10px 8px;
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .map-card,
 .summary-card {
   padding: 20px;
@@ -1033,5 +1046,9 @@ button {
   .detail-meta-line {
     gap: 8px;
     font-size: 11px;
+  }
+
+  .field-picker-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
