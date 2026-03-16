@@ -11,10 +11,6 @@ export function countReports(reports: LiveReport[]): Record<ReportKind, number> 
 }
 
 export function deriveStatus(vendor: Vendor, reports: LiveReport[]): TruckStatus {
-  if (vendor.ownerConfirmedToday) {
-    return "ownerConfirmed";
-  }
-
   if (reports.length === 0) {
     return "unknown";
   }
@@ -48,20 +44,20 @@ export function buildVendorSummary(vendor: Vendor, reports: LiveReport[]): Vendo
 export function getStatusLabel(status: TruckStatus): string {
   switch (status) {
     case "ownerConfirmed":
-      return "\uC0AC\uC7A5\uB2D8 \uD655\uC778";
+      return "\uC601\uC5C5\uC911";
     case "likelyOpen":
-      return "\uC601\uC5C5\uC911 \uAC00\uB2A5\uC131";
+      return "\uC601\uC5C5\uC911";
     case "likelyClosed":
-      return "\uC601\uC5C5\uC885\uB8CC \uAC00\uB2A5\uC131";
+      return "\uC601\uC5C5\uC885\uB8CC";
     default:
-      return "\uD655\uC778 \uC81C\uBCF4 \uC5C6\uC74C";
+      return "\uD655\uC778 \uC81C\uBCF4 \uD544\uC694";
   }
 }
 
 export function getStatusTone(status: TruckStatus): "blue" | "green" | "yellow" | "elephant" {
   switch (status) {
     case "ownerConfirmed":
-      return "green";
+      return "blue";
     case "likelyOpen":
       return "blue";
     case "likelyClosed":

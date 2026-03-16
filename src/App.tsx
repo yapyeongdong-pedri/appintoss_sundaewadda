@@ -200,7 +200,6 @@ function App() {
         open={selectedVendor != null}
         onClose={() => setSelectedVendorId(undefined)}
         onReport={handleReport}
-        onOpenRegistration={() => setRegistrationOpen(true)}
         onOpenUpdate={(vendorId) => {
           setSelectedVendorId(vendorId);
           setUpdateOpen(true);

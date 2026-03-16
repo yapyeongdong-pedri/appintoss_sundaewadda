@@ -1,12 +1,14 @@
 export type ReportKind = "open" | "notYet" | "closed";
 export type TruckStatus = "unknown" | "likelyOpen" | "likelyClosed" | "ownerConfirmed";
-export type VendorCategory = "순대" | "곱창" | "오뎅" | "붕어빵";
+export type VendorCategory =
+  | "\uC21C\uB300"
+  | "\uACF1\uCC3D"
+  | "\uD2B8\uBF80\uAE30"
+  | "\uBD95\uC5B4\uBE75";
 
-export interface Review {
-  id: string;
-  author: string;
-  body: string;
-  score: number;
+export interface MenuItem {
+  name: string;
+  price: string;
 }
 
 export interface LiveReport {
@@ -25,11 +27,11 @@ export interface Vendor {
   category: VendorCategory;
   phone: string;
   menuSummary: string[];
+  menuItems: MenuItem[];
   priceSummary: string;
   businessHours: string;
   visitPattern: string;
   description: string;
-  reviews: Review[];
   position: {
     x: number;
     y: number;

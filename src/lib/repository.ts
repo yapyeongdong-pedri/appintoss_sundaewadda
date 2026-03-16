@@ -1,4 +1,4 @@
-import type { LiveReport, RegistrationRequest, Review, UpdateRequest, Vendor } from "../types";
+import type { LiveReport, MenuItem, RegistrationRequest, UpdateRequest, Vendor } from "../types";
 import {
   loadLocalRegistrationRequests,
   loadLocalReports,
@@ -16,6 +16,7 @@ interface VendorRow {
   category: Vendor["category"];
   phone: string;
   menu_summary: string[];
+  menu_items?: MenuItem[] | null;
   price_summary: string;
   business_hours: string;
   visit_pattern: string;
@@ -24,14 +25,6 @@ interface VendorRow {
   position_y: number;
   address: string;
   owner_confirmed_today: boolean;
-}
-
-interface ReviewRow {
-  id: string;
-  vendor_id: string;
-  author: string;
-  body: string;
-  score: number;
 }
 
 interface LiveReportRow {
@@ -70,22 +63,30 @@ export interface AppDataBundle {
   updateRequests: UpdateRequest[];
 }
 
-function mapReviewRow(row: ReviewRow): Review {
-  return {
-    id: row.id,
-    author: row.author,
-    body: row.body,
-    score: row.score,
-  };
+function buildMenuItems(menuSummary: string[], priceSummary: string, rowMenuItems?: MenuItem[] | null) {
+  if (Array.isArray(rowMenuItems) && rowMenuItems.length > 0) {
+    return rowMenuItems;
+  }
+
+  const prices = priceSummary
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  return menuSummary.map((name, index) => ({
+    name,
+    price: prices[index] ?? prices[prices.length - 1] ?? "-",
+  }));
 }
 
-function mapVendorRow(row: VendorRow, reviews: Review[]): Vendor {
+function mapVendorRow(row: VendorRow): Vendor {
   return {
     id: row.id,
     name: row.name,
     category: row.category,
     phone: row.phone,
     menuSummary: row.menu_summary,
+    menuItems: buildMenuItems(row.menu_summary, row.price_summary, row.menu_items),
     priceSummary: row.price_summary,
     businessHours: row.business_hours,
     visitPattern: row.visit_pattern,
@@ -96,7 +97,6 @@ function mapVendorRow(row: VendorRow, reviews: Review[]): Vendor {
       address: row.address,
     },
     ownerConfirmedToday: row.owner_confirmed_today,
-    reviews,
   };
 }
 
@@ -150,10 +150,9 @@ export async function loadAppData(): Promise<AppDataBundle> {
   }
 
   try {
-    const [vendorsResult, reviewsResult, reportsResult, registrationResult, updateResult] =
+    const [vendorsResult, reportsResult, registrationResult, updateResult] =
       await Promise.all([
         supabase.from("vendors").select("*").order("created_at", { ascending: true }),
-        supabase.from("reviews").select("*").order("created_at", { ascending: true }),
         supabase.from("live_reports").select("*").order("created_at", { ascending: false }),
         supabase.from("registration_requests").select("*").order("submitted_at", { ascending: false }),
         supabase.from("update_requests").select("*").order("submitted_at", { ascending: false }),
@@ -161,14 +160,12 @@ export async function loadAppData(): Promise<AppDataBundle> {
 
     if (
       vendorsResult.error ||
-      reviewsResult.error ||
       reportsResult.error ||
       registrationResult.error ||
       updateResult.error
     ) {
       console.warn("Supabase load failed, using local fallback.", {
         vendorsError: vendorsResult.error,
-        reviewsError: reviewsResult.error,
         reportsError: reportsResult.error,
         registrationError: registrationResult.error,
         updateError: updateResult.error,
@@ -176,17 +173,8 @@ export async function loadAppData(): Promise<AppDataBundle> {
       return getFallbackBundle();
     }
 
-    const reviewMap = new Map<string, Review[]>();
-    (reviewsResult.data as ReviewRow[]).forEach((row) => {
-      const next = reviewMap.get(row.vendor_id) ?? [];
-      next.push(mapReviewRow(row));
-      reviewMap.set(row.vendor_id, next);
-    });
-
     return {
-      vendors: (vendorsResult.data as VendorRow[]).map((row) =>
-        mapVendorRow(row, reviewMap.get(row.id) ?? []),
-      ),
+      vendors: (vendorsResult.data as VendorRow[]).map((row) => mapVendorRow(row)),
       reports: (reportsResult.data as LiveReportRow[]).map(mapReportRow),
       registrationRequests: (registrationResult.data as RegistrationRequestRow[]).map(
         mapRegistrationRequestRow,
