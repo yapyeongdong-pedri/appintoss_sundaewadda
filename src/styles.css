@@ -245,7 +245,7 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
 }
 
 .app-body {
@@ -270,16 +270,18 @@ button {
 }
 
 .hero-title {
-  margin: 16px 0 8px;
-  font-size: 34px;
-  line-height: 1.3;
+  margin: 8px 0 6px;
+  font-size: 32px;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
 .hero-description {
-  margin: 0 0 16px;
+  margin: 0 0 8px;
   color: #4e5968;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .hero-copy,
@@ -312,15 +314,17 @@ button {
 .hero-feature-card strong {
   display: block;
   margin-bottom: 4px;
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .hero-feature-card p {
   margin: 0;
   color: #6b7684;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .hero-emoji {
@@ -624,6 +628,11 @@ button {
 
 .field input::placeholder {
   color: #8b95a1;
+}
+
+.hero-card-intro .ui-button-xlarge {
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .bottom-nav {
