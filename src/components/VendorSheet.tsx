@@ -12,10 +12,27 @@ interface VendorSheetProps {
 
 function formatReportTime(isoString?: string) {
   if (isoString == null) {
-    return "\uC624\uB298 \uC81C\uBCF4 \uC5C6\uC74C";
+    return "\uAE30\uC900 \uC2DC\uAC04 \uC5C6\uC74C";
   }
 
-  return `${isoString.slice(11, 16)} \uAE30\uC900`;
+  const date = new Date(isoString);
+  const weekdays = [
+    "\uC77C",
+    "\uC6D4",
+    "\uD654",
+    "\uC218",
+    "\uBAA9",
+    "\uAE08",
+    "\uD1A0",
+  ];
+
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const weekday = weekdays[date.getDay()];
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${month}/${day}(${weekday}) ${hours}:${minutes} \uAE30\uC900`;
 }
 
 export function VendorSheet({
@@ -43,6 +60,7 @@ export function VendorSheet({
             price: prices[index] ?? prices[prices.length - 1] ?? "-",
           };
         });
+  const headlineMenu = vendor.menuSummary.slice(0, 3).join(" / ");
 
   return (
     <div className="detail-overlay" role="dialog" aria-modal="true">
@@ -52,13 +70,20 @@ export function VendorSheet({
           <div className="detail-title-group">
             <p className="section-eyebrow">{vendor.position.address}</p>
             <h3 className="detail-title">{vendor.name}</h3>
-            <p className="detail-subtitle">
-              {vendor.category} {" \u00B7 "} {formatReportTime(vendor.latestReportAt)}
+            <p className="detail-meta-line">
+              <span>{headlineMenu}</span>
+              <span>{vendor.visitPattern}</span>
+              <span>{vendor.businessHours}</span>
             </p>
           </div>
-          <button type="button" className="detail-close-button" onClick={onClose}>
-            {"\u2715"}
-          </button>
+          <div className="detail-top-actions">
+            <button type="button" className="detail-text-button" onClick={() => onOpenUpdate(vendor.id)}>
+              {"\uC815\uBCF4 \uC218\uC815"}
+            </button>
+            <button type="button" className="detail-close-button" onClick={onClose}>
+              {"\u2715"}
+            </button>
+          </div>
         </header>
 
         <div className="detail-status-bar">
@@ -70,6 +95,7 @@ export function VendorSheet({
               <span>{"\uC601\uC5C5\uC911 "} {vendor.reportCounts.open}</span>
               <span>{"\uC885\uB8CC "} {vendor.reportCounts.closed}</span>
               <span>{"\uBBF8\uD655\uC778 "} {vendor.reportCounts.notYet}</span>
+              <span>{formatReportTime(vendor.latestReportAt)}</span>
             </div>
           </div>
 
@@ -80,9 +106,6 @@ export function VendorSheet({
             <a className="detail-link-button" href={`sms:${vendor.phone}`}>
               {"\uBB38\uC790\uD558\uAE30"}
             </a>
-            <button type="button" className="detail-text-button" onClick={() => onOpenUpdate(vendor.id)}>
-              {"\uC815\uBCF4 \uC218\uC815"}
-            </button>
           </div>
         </div>
 
@@ -106,20 +129,12 @@ export function VendorSheet({
             <p className="section-label">{"\uAE30\uBCF8 \uC815\uBCF4"}</p>
             <div className="info-list">
               <div className="info-row">
-                <span>{"\uC0AC\uC7A5\uB2D8 \uBC88\uD638"}</span>
-                <strong>{vendor.phone}</strong>
-              </div>
-              <div className="info-row">
                 <span>{"\uC8FC\uC694 \uC704\uCE58"}</span>
                 <strong>{vendor.position.address}</strong>
               </div>
               <div className="info-row">
-                <span>{"\uC624\uB294 \uC694\uC77C"}</span>
-                <strong>{vendor.visitPattern}</strong>
-              </div>
-              <div className="info-row">
-                <span>{"\uC6B4\uC601 \uC2DC\uAC04"}</span>
-                <strong>{vendor.businessHours}</strong>
+                <span>{"\uD2B8\uB7ED \uC885\uB958"}</span>
+                <strong>{vendor.category}</strong>
               </div>
             </div>
           </section>
