@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { isImageSource } from "../lib/imageFiles";
 import { getStatusLabel, getStatusTone } from "../lib/status";
 import type { VendorSummary } from "../types";
 import { Badge, Button } from "../ui";
@@ -127,7 +128,11 @@ export function VendorSheet({
                   >
                     <div className="menu-board-card-image">
                       <span className="menu-board-card-badge">{`\uBA54\uB274\uD310 ${index + 1}`}</span>
-                      <strong>{photo}</strong>
+                      {isImageSource(photo) ? (
+                        <img src={photo} alt={`\uBA54\uB274\uD310 ${index + 1}`} className="menu-board-image" />
+                      ) : (
+                        <strong>{photo}</strong>
+                      )}
                     </div>
                   </button>
                 ))}
@@ -187,7 +192,11 @@ export function VendorSheet({
             </button>
             <div className="lightbox-image">
               <span className="menu-board-card-badge">{"\uBA54\uB274\uD310 \uD655\uB300"}</span>
-              <strong>{selectedMenuBoardPhoto}</strong>
+              {isImageSource(selectedMenuBoardPhoto) ? (
+                <img src={selectedMenuBoardPhoto} alt="\uBA54\uB274\uD310 \uD655\uB300" className="lightbox-photo" />
+              ) : (
+                <strong>{selectedMenuBoardPhoto}</strong>
+              )}
             </div>
           </section>
         </div>

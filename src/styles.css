@@ -451,6 +451,14 @@ button {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7), 0 14px 32px rgba(15, 23, 42, 0.08);
 }
 
+.menu-board-image,
+.lightbox-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
 .menu-board-card-image strong,
 .lightbox-image strong {
   font-size: 18px;
@@ -1003,10 +1011,43 @@ button {
   gap: 8px;
 }
 
+.hidden-file-input {
+  display: none;
+}
+
+.photo-upload-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .photo-field-stack {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.photo-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.photo-preview-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.photo-preview-card {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #f2f4f6;
+  aspect-ratio: 1 / 1;
+}
+
+.photo-preview-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .field span {

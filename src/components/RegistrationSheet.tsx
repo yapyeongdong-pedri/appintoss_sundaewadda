@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { readFilesAsDataUrls } from "../lib/imageFiles";
 import type { MenuCategory, RegistrationRequest, Vendor } from "../types";
 import { BottomSheet, Button } from "../ui";
 
@@ -32,8 +33,34 @@ export function RegistrationSheet({
   const [businessCardPhoto, setBusinessCardPhoto] = useState("");
   const [menuBoardPhotos, setMenuBoardPhotos] = useState(["", "", ""]);
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
+  const businessCardInputRef = useRef<HTMLInputElement | null>(null);
+  const menuBoardInputRef = useRef<HTMLInputElement | null>(null);
 
   const candidates = useMemo(() => onCheckDuplicates(name, location), [location, name, onCheckDuplicates]);
+
+  const handleBusinessCardSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files == null || event.target.files.length === 0) {
+      return;
+    }
+
+    const [image] = await readFilesAsDataUrls(event.target.files);
+    if (image) {
+      setBusinessCardPhoto(image);
+    }
+    event.target.value = "";
+  };
+
+  const handleMenuBoardSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files == null || event.target.files.length === 0) {
+      return;
+    }
+
+    const images = await readFilesAsDataUrls(event.target.files);
+    if (images.length > 0) {
+      setMenuBoardPhotos(images.slice(0, 3).concat(["", "", ""]).slice(0, 3));
+    }
+    event.target.value = "";
+  };
 
   const handleSubmit = async () => {
     await onSubmit({
@@ -132,29 +159,65 @@ export function RegistrationSheet({
             })}
           </div>
         </div>
-        <label className="field">
-          <span>{"\uBA85\uD568 \uC0AC\uC9C4 \uC124\uBA85"}</span>
+        <div className="field">
+          <span>{"\uBA85\uD568 \uC0AC\uC9C4"}</span>
           <input
-            value={businessCardPhoto}
-            onChange={(event) => setBusinessCardPhoto(event.target.value)}
-            placeholder="\uC608: \uBA85\uD568 \uC55E\uBA74 \uC0AC\uC9C4"
+            ref={businessCardInputRef}
+            className="hidden-file-input"
+            type="file"
+            accept="image/*"
+            onChange={handleBusinessCardSelect}
           />
-        </label>
+          <div className="photo-upload-stack">
+            <Button
+              color="light"
+              variant="fill"
+              size="large"
+              display="full"
+              onClick={() => businessCardInputRef.current?.click()}
+            >
+              {businessCardPhoto ? "\uBA85\uD568 \uC0AC\uC9C4 \uB2E4\uC2DC \uC120\uD0DD" : "\uBA85\uD568 \uC0AC\uC9C4 \uC62C\uB9AC\uAE30"}
+            </Button>
+            {businessCardPhoto ? (
+              <div className="photo-preview-grid photo-preview-grid-single">
+                <div className="photo-preview-card">
+                  <img src={businessCardPhoto} alt="\uBA85\uD568 \uBBF8\uB9AC\uBCF4\uAE30" />
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
         <div className="field">
           <span>{"\uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4"}</span>
-          <div className="photo-field-stack">
-            {menuBoardPhotos.map((photo, index) => (
-              <input
-                key={`menu-board-${index}`}
-                value={photo}
-                onChange={(event) =>
-                  setMenuBoardPhotos((prev) =>
-                    prev.map((item, photoIndex) => (photoIndex === index ? event.target.value : item)),
-                  )
-                }
-                placeholder={`\uC608: \uBA54\uB274\uD310 \uC0AC\uC9C4 ${index + 1}`}
-              />
-            ))}
+          <input
+            ref={menuBoardInputRef}
+            className="hidden-file-input"
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleMenuBoardSelect}
+          />
+          <div className="photo-upload-stack">
+            <Button
+              color="light"
+              variant="fill"
+              size="large"
+              display="full"
+              onClick={() => menuBoardInputRef.current?.click()}
+            >
+              {"\uBA54\uB274\uD310 \uC0AC\uC9C4 \uCD5C\uB300 3\uC7A5 \uC120\uD0DD"}
+            </Button>
+            {menuBoardPhotos.some((item) => item !== "") ? (
+              <div className="photo-preview-grid">
+                {menuBoardPhotos
+                  .filter(Boolean)
+                  .map((photo, index) => (
+                    <div className="photo-preview-card" key={`menu-board-preview-${index}`}>
+                      <img src={photo} alt={`\uBA54\uB274\uD310 \uBBF8\uB9AC\uBCF4\uAE30 ${index + 1}`} />
+                    </div>
+                  ))}
+              </div>
+            ) : null}
           </div>
           <small className="field-help">
             {"\uBA54\uB274\uC640 \uAC00\uACA9\uC774 \uC798 \uBCF4\uC774\uB294 \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4\uC774 \uC88B\uC544\uC694."}

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { readFilesAsDataUrls } from "../lib/imageFiles";
 import type { UpdateRequest, VendorSummary } from "../types";
 import { BottomSheet, Button } from "../ui";
 
@@ -63,6 +64,7 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
   const [field, setField] = useState<UpdateRequest["field"]>("menuBoard");
   const [value, setValue] = useState("");
   const [menuBoardPhotos, setMenuBoardPhotos] = useState(["", "", ""]);
+  const menuBoardInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -81,6 +83,18 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
 
     setValue(getCurrentFieldValue(vendor, field));
   }, [field, open, vendor]);
+
+  const handleMenuBoardSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files == null || event.target.files.length === 0) {
+      return;
+    }
+
+    const images = await readFilesAsDataUrls(event.target.files);
+    if (images.length > 0) {
+      setMenuBoardPhotos(images.slice(0, 3).concat(["", "", ""]).slice(0, 3));
+    }
+    event.target.value = "";
+  };
 
   const handleClose = () => {
     setValue("");
@@ -186,19 +200,35 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
 
             <div className="field">
               <span>{"\uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4"}</span>
-              <div className="photo-field-stack">
-                {menuBoardPhotos.map((photo, index) => (
-                  <input
-                    key={`update-menu-board-${index}`}
-                    value={photo}
-                    onChange={(event) =>
-                      setMenuBoardPhotos((prev) =>
-                        prev.map((item, photoIndex) => (photoIndex === index ? event.target.value : item)),
-                      )
-                    }
-                    placeholder={`\uC608: \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4 ${index + 1}`}
-                  />
-                ))}
+              <input
+                ref={menuBoardInputRef}
+                className="hidden-file-input"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleMenuBoardSelect}
+              />
+              <div className="photo-upload-stack">
+                <Button
+                  color="light"
+                  variant="fill"
+                  size="large"
+                  display="full"
+                  onClick={() => menuBoardInputRef.current?.click()}
+                >
+                  {"\uCD5C\uC2E0 \uBA54\uB274\uD310 \uCD5C\uB300 3\uC7A5 \uC120\uD0DD"}
+                </Button>
+                {menuBoardPhotos.some((item) => item !== "") ? (
+                  <div className="photo-preview-grid">
+                    {menuBoardPhotos
+                      .filter(Boolean)
+                      .map((photo, index) => (
+                        <div className="photo-preview-card" key={`update-menu-board-preview-${index}`}>
+                          <img src={photo} alt={`\uBA54\uB274\uD310 \uBBF8\uB9AC\uBCF4\uAE30 ${index + 1}`} />
+                        </div>
+                      ))}
+                  </div>
+                ) : null}
               </div>
               <small className="field-help">
                 {"\uBA54\uB274\uC640 \uAC00\uACA9\uC774 \uC798 \uBCF4\uC774\uB294 \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4\uC744 \uC62C\uB824\uC8FC\uC138\uC694."}
