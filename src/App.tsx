@@ -217,6 +217,7 @@ function App() {
       <UpdateSheet
         open={updateOpen}
         vendorId={selectedVendorId}
+        vendor={selectedVendor}
         onClose={() => setUpdateOpen(false)}
         onSubmit={handleSubmitUpdate}
       />

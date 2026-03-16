@@ -622,6 +622,19 @@ button {
   white-space: nowrap;
 }
 
+.current-value-stack {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.current-value-stack strong {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
 .map-card,
 .summary-card {
   padding: 20px;

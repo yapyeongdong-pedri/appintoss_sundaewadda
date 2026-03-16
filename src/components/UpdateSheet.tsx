@@ -1,17 +1,17 @@
-import { useState } from "react";
-import type { UpdateRequest } from "../types";
+import { useEffect, useMemo, useState } from "react";
+import type { MenuItem, UpdateRequest, VendorSummary } from "../types";
 import { BottomSheet, Button } from "../ui";
 
 interface UpdateSheetProps {
   open: boolean;
   vendorId?: string;
+  vendor?: VendorSummary;
   onClose: () => void;
   onSubmit: (draft: Omit<UpdateRequest, "id" | "submittedAt">) => void;
 }
 
 const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
-  { key: "menu", label: "\uBA54\uB274" },
-  { key: "price", label: "\uAC00\uACA9" },
+  { key: "menu", label: "\uBA54\uB274/\uAC00\uACA9" },
   { key: "visitPattern", label: "\uC624\uB294 \uC694\uC77C" },
   { key: "businessHours", label: "\uC6B4\uC601 \uC2DC\uAC04" },
   { key: "location", label: "\uC704\uCE58" },
@@ -22,9 +22,7 @@ const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
 function getFieldPlaceholder(field: UpdateRequest["field"]) {
   switch (field) {
     case "menu":
-      return "\uC608: \uCC30\uC21C\uB300, \uC624\uB385, \uB0B4\uC7A5\uD0D5 \uD310\uB9E4";
-    case "price":
-      return "\uC608: \uCC30\uC21C\uB300 4,000\uC6D0, \uB0B4\uC7A5\uBAA8\uB4EC 7,000\uC6D0";
+      return "\uBA3C\uC800 \uBA54\uB274\uB97C \uACE0\uB974\uACE0 \uC218\uC815\uD560 \uBA54\uB274\uBA85\uACFC \uAC00\uACA9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694";
     case "visitPattern":
       return "\uC608: \uD654/\uBAA9/\uD1A0 \uC800\uB141";
     case "businessHours":
@@ -40,18 +38,108 @@ function getFieldPlaceholder(field: UpdateRequest["field"]) {
   }
 }
 
-export function UpdateSheet({ open, vendorId, onClose, onSubmit }: UpdateSheetProps) {
+function getCurrentFieldValue(vendor: VendorSummary | undefined, field: UpdateRequest["field"]) {
+  if (vendor == null) {
+    return "";
+  }
+
+  switch (field) {
+    case "visitPattern":
+      return vendor.visitPattern;
+    case "businessHours":
+      return vendor.businessHours;
+    case "location":
+      return vendor.position.address;
+    case "phone":
+      return vendor.phone;
+    case "closedNotice":
+      return "\uD604\uC7AC \uC601\uC5C5 \uC885\uB8CC \uC815\uBCF4 \uC5C6\uC74C";
+    default:
+      return "";
+  }
+}
+
+function buildFallbackMenuItems(vendor: VendorSummary | undefined): MenuItem[] {
+  if (vendor == null) {
+    return [];
+  }
+
+  if (vendor.menuItems?.length > 0) {
+    return vendor.menuItems;
+  }
+
+  const prices = vendor.priceSummary
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  return vendor.menuSummary.map((name, index) => ({
+    name,
+    price: prices[index] ?? prices[prices.length - 1] ?? "-",
+  }));
+}
+
+export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: UpdateSheetProps) {
   const [field, setField] = useState<UpdateRequest["field"]>("menu");
   const [value, setValue] = useState("");
+  const [selectedMenuName, setSelectedMenuName] = useState("");
+  const [menuNameDraft, setMenuNameDraft] = useState("");
+  const [menuPriceDraft, setMenuPriceDraft] = useState("");
+
+  const menuItems = useMemo(() => buildFallbackMenuItems(vendor), [vendor]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    setField("menu");
+    setValue("");
+
+    if (menuItems.length > 0) {
+      const firstMenu = menuItems[0];
+      setSelectedMenuName(firstMenu.name);
+      setMenuNameDraft(firstMenu.name);
+      setMenuPriceDraft(firstMenu.price);
+      return;
+    }
+
+    setSelectedMenuName("");
+    setMenuNameDraft("");
+    setMenuPriceDraft("");
+  }, [menuItems, open]);
 
   const handleClose = () => {
     setValue("");
     setField("menu");
+    setSelectedMenuName("");
+    setMenuNameDraft("");
+    setMenuPriceDraft("");
     onClose();
   };
 
   const handleSubmit = () => {
-    if (vendorId == null || value.trim() === "") {
+    if (vendorId == null) {
+      return;
+    }
+
+    if (field === "menu") {
+      const currentMenu = menuItems.find((item) => item.name === selectedMenuName);
+
+      if (currentMenu == null || menuNameDraft.trim() === "" || menuPriceDraft.trim() === "") {
+        return;
+      }
+
+      onSubmit({
+        vendorId,
+        field,
+        value: `\uB300\uC0C1 \uBA54\uB274: ${currentMenu.name} / \uD604\uC7AC: ${currentMenu.price} / \uC81C\uC548 \uBA54\uB274: ${menuNameDraft.trim()} / \uC81C\uC548 \uAC00\uACA9: ${menuPriceDraft.trim()}`,
+      });
+      handleClose();
+      return;
+    }
+
+    if (value.trim() === "") {
       return;
     }
 
@@ -85,7 +173,12 @@ export function UpdateSheet({ open, vendorId, onClose, onSubmit }: UpdateSheetPr
               size="large"
               display="full"
               onClick={handleSubmit}
-              disabled={vendorId == null || value.trim() === ""}
+              disabled={
+                vendorId == null ||
+                (field === "menu"
+                  ? selectedMenuName === "" || menuNameDraft.trim() === "" || menuPriceDraft.trim() === ""
+                  : value.trim() === "")
+              }
             >
               {"\uC218\uC815 \uC694\uCCAD"}
             </Button>
@@ -100,20 +193,82 @@ export function UpdateSheet({ open, vendorId, onClose, onSubmit }: UpdateSheetPr
               key={key}
               type="button"
               className={`field-chip ${field === key ? "field-chip-active" : ""}`}
-              onClick={() => setField(key)}
+              onClick={() => {
+                setField(key);
+                setValue("");
+              }}
             >
               {label}
             </button>
           ))}
         </div>
-        <label className="field">
-          <span>{"\uC218\uC815\uD560 \uB0B4\uC6A9"}</span>
-          <input
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            placeholder={getFieldPlaceholder(field)}
-          />
-        </label>
+
+        {field === "menu" ? (
+          <>
+            <div className="field">
+              <span>{"\uC218\uC815\uD560 \uBA54\uB274 \uC120\uD0DD"}</span>
+              <div className="field-picker-grid">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.name}
+                    type="button"
+                    className={`field-chip ${selectedMenuName === item.name ? "field-chip-active" : ""}`}
+                    onClick={() => {
+                      setSelectedMenuName(item.name);
+                      setMenuNameDraft(item.name);
+                      setMenuPriceDraft(item.price);
+                    }}
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {selectedMenuName ? (
+              <div className="hint-card">
+                <p className="section-label">{"\uD604\uC7AC \uC815\uBCF4"}</p>
+                <div className="current-value-stack">
+                  <strong>{selectedMenuName}</strong>
+                  <span>{menuItems.find((item) => item.name === selectedMenuName)?.price ?? "-"}</span>
+                </div>
+              </div>
+            ) : null}
+
+            <label className="field">
+              <span>{"\uC218\uC815\uD560 \uBA54\uB274\uBA85"}</span>
+              <input
+                value={menuNameDraft}
+                onChange={(event) => setMenuNameDraft(event.target.value)}
+                placeholder="\uC608: \uCC30\uC21C\uB300"
+              />
+            </label>
+
+            <label className="field">
+              <span>{"\uC218\uC815\uD560 \uAC00\uACA9"}</span>
+              <input
+                value={menuPriceDraft}
+                onChange={(event) => setMenuPriceDraft(event.target.value)}
+                placeholder="\uC608: 5,000\uC6D0"
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <div className="hint-card">
+              <p className="section-label">{"\uD604\uC7AC \uC815\uBCF4"}</p>
+              <p className="muted-text">{getCurrentFieldValue(vendor, field) || "\uB4F1\uB85D\uB41C \uC815\uBCF4 \uC5C6\uC74C"}</p>
+            </div>
+            <label className="field">
+              <span>{"\uC218\uC815\uD560 \uB0B4\uC6A9"}</span>
+              <input
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
+                placeholder={getFieldPlaceholder(field)}
+              />
+            </label>
+          </>
+        )}
       </div>
     </BottomSheet>
   );

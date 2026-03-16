@@ -24,7 +24,7 @@ function getRegistrationStatus(request: RegistrationRequest) {
 function getUpdateFieldLabel(field: UpdateRequest["field"]) {
   switch (field) {
     case "menu":
-      return "\uBA54\uB274";
+      return "\uBA54\uB274/\uAC00\uACA9";
     case "price":
       return "\uAC00\uACA9";
     case "visitPattern":
