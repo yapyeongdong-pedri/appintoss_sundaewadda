@@ -7,6 +7,7 @@ import { SettingsScreen } from "./components/SettingsScreen";
 import { UpdateSheet } from "./components/UpdateSheet";
 import { VendorSheet } from "./components/VendorSheet";
 import { findDuplicateCandidates } from "./lib/duplicates";
+import { geocodeAddress } from "./lib/kakaoMap";
 import {
   createLiveReport,
   createRegistrationRequest,
@@ -78,9 +79,12 @@ function App() {
   const handleSubmitRegistration = async (
     draft: Omit<RegistrationRequest, "id" | "submittedAt" | "duplicateCandidateIds">,
   ) => {
+    const geocoded = await geocodeAddress(draft.location);
     const duplicates = findDuplicateCandidates(vendors, { name: draft.name, location: draft.location });
     const nextRequest = {
       ...draft,
+      latitude: geocoded?.latitude,
+      longitude: geocoded?.longitude,
       id: crypto.randomUUID(),
       submittedAt: new Date().toISOString(),
       duplicateCandidateIds: duplicates.map((candidate) => candidate.id),
@@ -98,8 +102,12 @@ function App() {
   };
 
   const handleSubmitUpdate = async (draft: Omit<UpdateRequest, "id" | "submittedAt">) => {
+    const geocoded =
+      draft.field === "location" && draft.value.trim() !== "" ? await geocodeAddress(draft.value) : null;
     const nextRequest = {
       ...draft,
+      proposedLatitude: geocoded?.latitude ?? draft.proposedLatitude,
+      proposedLongitude: geocoded?.longitude ?? draft.proposedLongitude,
       id: crypto.randomUUID(),
       submittedAt: new Date().toISOString(),
     };

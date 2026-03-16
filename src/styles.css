@@ -937,6 +937,14 @@ button {
   color: #191f28;
 }
 
+.field-help {
+  display: block;
+  margin-top: 6px;
+  color: #8b95a1;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .field input::placeholder {
   color: #8b95a1;
 }

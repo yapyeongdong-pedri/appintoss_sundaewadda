@@ -6,7 +6,7 @@ interface RegistrationSheetProps {
   open: boolean;
   vendors: Vendor[];
   onClose: () => void;
-  onSubmit: (draft: Omit<RegistrationRequest, "id" | "submittedAt" | "duplicateCandidateIds">) => void;
+  onSubmit: (draft: Omit<RegistrationRequest, "id" | "submittedAt" | "duplicateCandidateIds">) => Promise<void>;
   onCheckDuplicates: (name: string, location: string) => Vendor[];
 }
 
@@ -35,8 +35,8 @@ export function RegistrationSheet({
 
   const candidates = useMemo(() => onCheckDuplicates(name, location), [location, name, onCheckDuplicates]);
 
-  const handleSubmit = () => {
-    onSubmit({
+  const handleSubmit = async () => {
+    await onSubmit({
       name,
       location,
       visitPattern,
@@ -95,6 +95,9 @@ export function RegistrationSheet({
             onChange={(event) => setLocation(event.target.value)}
             placeholder="\uC608: \uC815\uB989\uC2DC\uC7A5 \uC785\uAD6C \uC55E"
           />
+          <small className="field-help">
+            {"\uC785\uB825\uD55C \uC704\uCE58\uB97C \uAE30\uC900\uC73C\uB85C \uCE74\uCE74\uC624\uB9F5 \uC88C\uD45C\uB97C \uD568\uAED8 \uC800\uC7A5\uD574\uC694."}
+          </small>
         </label>
         <label className="field">
           <span>{"\uC624\uB294 \uC694\uC77C"}</span>

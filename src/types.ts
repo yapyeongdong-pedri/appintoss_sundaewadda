@@ -62,6 +62,8 @@ export interface RegistrationRequest {
   id: string;
   name: string;
   location: string;
+  latitude?: number;
+  longitude?: number;
   visitPattern: string;
   businessCardPhoto: string;
   menuBoardPhoto: string;
@@ -87,5 +89,7 @@ export interface UpdateRequest {
   currentMenuPrice?: string;
   proposedMenuName?: string;
   proposedMenuPrice?: string;
+  proposedLatitude?: number;
+  proposedLongitude?: number;
   submittedAt: string;
 }

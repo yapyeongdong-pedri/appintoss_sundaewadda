@@ -52,6 +52,8 @@ interface RegistrationRequestRow {
   id: string;
   name: string;
   location: string;
+  latitude?: number | null;
+  longitude?: number | null;
   visit_pattern: string;
   business_card_photo: string;
   menu_board_photo: string;
@@ -71,6 +73,8 @@ interface UpdateRequestRow {
   current_menu_price?: string | null;
   proposed_menu_name?: string | null;
   proposed_menu_price?: string | null;
+  proposed_latitude?: number | null;
+  proposed_longitude?: number | null;
   submitted_at: string;
 }
 
@@ -134,6 +138,8 @@ function mapRegistrationRequestRow(row: RegistrationRequestRow): RegistrationReq
     id: row.id,
     name: row.name,
     location: row.location,
+    latitude: row.latitude ?? undefined,
+    longitude: row.longitude ?? undefined,
     visitPattern: row.visit_pattern,
     businessCardPhoto: row.business_card_photo,
     menuBoardPhoto: row.menu_board_photo,
@@ -155,6 +161,8 @@ function mapUpdateRequestRow(row: UpdateRequestRow): UpdateRequest {
     currentMenuPrice: row.current_menu_price ?? undefined,
     proposedMenuName: row.proposed_menu_name ?? undefined,
     proposedMenuPrice: row.proposed_menu_price ?? undefined,
+    proposedLatitude: row.proposed_latitude ?? undefined,
+    proposedLongitude: row.proposed_longitude ?? undefined,
     submittedAt: row.submitted_at,
   };
 }
@@ -264,6 +272,8 @@ export async function createRegistrationRequest(
     id: request.id,
     name: request.name,
     location: request.location,
+    latitude: request.latitude ?? null,
+    longitude: request.longitude ?? null,
     visit_pattern: request.visitPattern,
     business_card_photo: request.businessCardPhoto,
     menu_board_photo: request.menuBoardPhoto,
@@ -295,6 +305,8 @@ export async function createUpdateRequest(request: UpdateRequest): Promise<void>
     current_menu_price: request.currentMenuPrice ?? null,
     proposed_menu_name: request.proposedMenuName ?? null,
     proposed_menu_price: request.proposedMenuPrice ?? null,
+    proposed_latitude: request.proposedLatitude ?? null,
+    proposed_longitude: request.proposedLongitude ?? null,
     submitted_at: request.submittedAt,
   });
 

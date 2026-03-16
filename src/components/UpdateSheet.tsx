@@ -7,7 +7,7 @@ interface UpdateSheetProps {
   vendorId?: string;
   vendor?: VendorSummary;
   onClose: () => void;
-  onSubmit: (draft: Omit<UpdateRequest, "id" | "submittedAt">) => void;
+  onSubmit: (draft: Omit<UpdateRequest, "id" | "submittedAt">) => Promise<void>;
 }
 
 const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
@@ -133,7 +133,7 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
     onClose();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (vendorId == null) {
       return;
     }
@@ -145,7 +145,7 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
         return;
       }
 
-      onSubmit({
+      await onSubmit({
         vendorId,
         field,
         value: `\uB300\uC0C1 \uBA54\uB274: ${currentMenu.name} / \uD604\uC7AC: ${currentMenu.price} / \uC81C\uC548 \uBA54\uB274: ${menuNameDraft.trim()} / \uC81C\uC548 \uAC00\uACA9: ${menuPriceDraft.trim()}`,
@@ -164,7 +164,7 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
       return;
     }
 
-    onSubmit({ vendorId, field, value });
+    await onSubmit({ vendorId, field, value });
     handleClose();
   };
 
@@ -303,6 +303,11 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
                 onChange={(event) => setValue(event.target.value)}
                 placeholder={getFieldPlaceholder(field)}
               />
+              {field === "location" ? (
+                <small className="field-help">
+                  {"\uC785\uB825\uD55C \uC704\uCE58\uB97C \uAE30\uC900\uC73C\uB85C \uCE74\uCE74\uC624\uB9F5 \uC88C\uD45C\uB97C \uD568\uAED8 \uC800\uC7A5\uD574\uC694."}
+                </small>
+              ) : null}
             </label>
           </>
         )}

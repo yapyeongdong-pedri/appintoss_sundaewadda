@@ -56,3 +56,35 @@ export async function loadKakaoMapSdk(appKey: string): Promise<any> {
 
   return kakaoWindow.kakao;
 }
+
+export async function geocodeAddress(address: string): Promise<{ latitude: number; longitude: number } | null> {
+  const appKey = import.meta.env.VITE_KAKAO_MAP_APP_KEY;
+  if (appKey == null || appKey.trim() === "" || address.trim() === "") {
+    return null;
+  }
+
+  try {
+    const kakao = await loadKakaoMapSdk(appKey);
+    if (kakao?.maps?.services == null) {
+      return null;
+    }
+
+    const geocoder = new kakao.maps.services.Geocoder();
+    return await new Promise<{ latitude: number; longitude: number } | null>((resolve) => {
+      geocoder.addressSearch(address, (result: any[], status: string) => {
+        if (status === kakao.maps.services.Status.OK && result[0] != null) {
+          resolve({
+            latitude: Number(result[0].y),
+            longitude: Number(result[0].x),
+          });
+          return;
+        }
+
+        resolve(null);
+      });
+    });
+  } catch (error) {
+    console.warn("Address geocode failed.", error);
+    return null;
+  }
+}
