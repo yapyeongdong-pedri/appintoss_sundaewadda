@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { loadKakaoMapSdk } from "../lib/kakaoMap";
 import { getStatusLabel } from "../lib/status";
 import type { VendorSummary } from "../types";
+import { BottomSheet, Button } from "../ui";
 
 interface NeighborhoodMapProps {
   vendors: VendorSummary[];
@@ -17,10 +18,14 @@ export function NeighborhoodMap({
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
   const markerRefs = useRef<Map<string, any>>(new Map());
+  const currentLocationMarkerRef = useRef<any>(null);
   const [mapMode, setMapMode] = useState<"loading" | "live" | "fallback">(() =>
     import.meta.env.VITE_KAKAO_MAP_APP_KEY ? "loading" : "fallback",
   );
   const [mapNotice, setMapNotice] = useState<string>();
+  const [locationConsentOpen, setLocationConsentOpen] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const mapVendors = useMemo(
     () =>
@@ -160,6 +165,28 @@ export function NeighborhoodMap({
       if (selected != null) {
         map.panTo(new kakao.maps.LatLng(selected.latitude, selected.longitude));
       }
+
+      if (currentLocation != null) {
+        const currentPosition = new kakao.maps.LatLng(currentLocation.latitude, currentLocation.longitude);
+        if (currentLocationMarkerRef.current == null) {
+          currentLocationMarkerRef.current = new kakao.maps.Marker({
+            map,
+            position: currentPosition,
+            title: "\uD604\uC7AC \uC704\uCE58",
+            zIndex: 20,
+            image: new kakao.maps.MarkerImage(
+              buildCurrentLocationImage(),
+              new kakao.maps.Size(18, 18),
+              { offset: new kakao.maps.Point(9, 9) },
+            ),
+          });
+        } else {
+          currentLocationMarkerRef.current.setMap(map);
+          currentLocationMarkerRef.current.setPosition(currentPosition);
+        }
+      } else if (currentLocationMarkerRef.current != null) {
+        currentLocationMarkerRef.current.setMap(null);
+      }
     }
 
     renderMarkers();
@@ -167,11 +194,70 @@ export function NeighborhoodMap({
     return () => {
       disposed = true;
     };
-  }, [mapMode, mapVendors, onSelect, selectedVendorId]);
+  }, [currentLocation, mapMode, mapVendors, onSelect, selectedVendorId]);
+
+  const handleLocateMe = () => {
+    setLocationConsentOpen(true);
+  };
+
+  const requestCurrentLocation = async () => {
+    if (!("geolocation" in navigator)) {
+      setMapNotice("\uD604\uC7AC \uAE30\uAE30\uC5D0\uC11C \uC704\uCE58 \uD655\uC778\uC744 \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uC544\uC694.");
+      setLocationConsentOpen(false);
+      return;
+    }
+
+    setIsLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const nextLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+
+        setCurrentLocation(nextLocation);
+        setLocationConsentOpen(false);
+        setIsLocating(false);
+        setMapNotice("\uD604\uC7AC \uC704\uCE58\uB85C \uC774\uB3D9\uD588\uC5B4\uC694.");
+
+        const kakao = (window as Window & { kakao?: any }).kakao;
+        if (mapMode === "live" && kakao?.maps != null && mapInstanceRef.current != null) {
+          mapInstanceRef.current.panTo(new kakao.maps.LatLng(nextLocation.latitude, nextLocation.longitude));
+          if (typeof mapInstanceRef.current.setLevel === "function") {
+            mapInstanceRef.current.setLevel(3);
+          }
+        }
+      },
+      () => {
+        setIsLocating(false);
+        setLocationConsentOpen(false);
+        setMapNotice(
+          "\uC704\uCE58 \uAD8C\uD55C\uC774 \uAC70\uBD80\uB418\uC5C8\uAC70\uB098 \uD604\uC7AC \uC704\uCE58\uB97C \uAC00\uC838\uC624\uC9C0 \uBABB\uD588\uC5B4\uC694.",
+        );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000,
+      },
+    );
+  };
 
   return (
     <section className="map-card">
       <div className={`map-surface ${mapMode === "live" ? "map-surface-live" : ""}`} aria-label="local truck map">
+        <div className="map-toolbar">
+          <Button
+            color="light"
+            variant="fill"
+            size="medium"
+            display="inline"
+            onClick={handleLocateMe}
+          >
+            {"\uB0B4 \uC704\uCE58"}
+          </Button>
+        </div>
         {mapMode !== "fallback" ? <div ref={mapElementRef} className="kakao-map-canvas" /> : null}
         {mapMode !== "live" ? (
           <>
@@ -212,6 +298,60 @@ export function NeighborhoodMap({
           <i className="legend-dot legend-unknown" /> {"\uD655\uC778 \uC81C\uBCF4 \uD544\uC694"}
         </span>
       </div>
+
+      <BottomSheet
+        open={locationConsentOpen}
+        onClose={() => {
+          if (!isLocating) {
+            setLocationConsentOpen(false);
+          }
+        }}
+        header={<BottomSheet.Header>{"\uD604\uC7AC \uC704\uCE58 \uD655\uC778"}</BottomSheet.Header>}
+        headerDescription={
+          <BottomSheet.HeaderDescription>
+            {
+              "\uB0B4 \uC8FC\uBCC0 \uD2B8\uB7ED\uC744 \uB354 \uC815\uD655\uD788 \uBCF4\uAE30 \uC704\uD574 \uD604\uC7AC \uC704\uCE58 \uC815\uBCF4\uB97C \uD55C \uBC88 \uC0AC\uC6A9\uD574\uC694."
+            }
+          </BottomSheet.HeaderDescription>
+        }
+        cta={
+          <BottomSheet.DoubleCTA
+            leftButton={
+              <Button
+                color="light"
+                variant="weak"
+                size="large"
+                display="full"
+                onClick={() => setLocationConsentOpen(false)}
+                disabled={isLocating}
+              >
+                {"\uB2E4\uC74C\uC5D0"}
+              </Button>
+            }
+            rightButton={
+              <Button
+                color="primary"
+                variant="fill"
+                size="large"
+                display="full"
+                onClick={requestCurrentLocation}
+                disabled={isLocating}
+              >
+                {isLocating ? "\uC704\uCE58 \uD655\uC778 \uC911" : "\uD604\uC7AC \uC704\uCE58 \uC0AC\uC6A9"}
+              </Button>
+            }
+          />
+        }
+      >
+        <div className="sheet-content">
+          <div className="hint-card">
+            <p className="section-label">{"\uC0AC\uC6A9 \uBAA9\uC801"}</p>
+            <p className="muted-text">
+              {"\uB0B4 \uC8FC\uBCC0 \uD2B8\uB7ED \uC704\uCE58 \uD655\uC778 \uBC0F \uC9C0\uB3C4 \uC911\uC2EC \uC774\uB3D9"}
+            </p>
+          </div>
+        </div>
+      </BottomSheet>
     </section>
   );
 }
@@ -229,6 +369,17 @@ function buildMarkerImage(status: VendorSummary["status"], selected: boolean) {
     <svg width="32" height="44" viewBox="0 0 32 44" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M16 43C16 43 30 26.5 30 16C30 8.26801 23.732 2 16 2C8.26801 2 2 8.26801 2 16C2 26.5 16 43 16 43Z" fill="${fill}" stroke="${stroke}" stroke-width="${selected ? 3 : 2}"/>
       <circle cx="16" cy="16" r="5" fill="white"/>
+    </svg>
+  `.trim();
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function buildCurrentLocationImage() {
+  const svg = `
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="9" cy="9" r="8" fill="#ffffff" fill-opacity="0.88"/>
+      <circle cx="9" cy="9" r="5" fill="#3182f6"/>
     </svg>
   `.trim();
 
