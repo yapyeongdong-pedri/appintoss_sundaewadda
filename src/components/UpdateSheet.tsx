@@ -75,7 +75,7 @@ export function UpdateSheet({ open, vendorId, onClose, onSubmit }: UpdateSheetPr
           <input
             value={value}
             onChange={(event) => setValue(event.target.value)}
-            placeholder="e.g. Also comes on Saturdays around 8pm"
+            placeholder="\uC608: \uD1A0\uC694\uC77C\uB3C4 \uC800\uB141 8\uC2DC \uC804\uD6C4\uB85C \uC640\uC694"
           />
         </label>
       </div>

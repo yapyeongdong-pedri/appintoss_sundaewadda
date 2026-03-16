@@ -67,7 +67,7 @@ export function RegistrationSheet({
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="e.g. Cheongchun Sundae Truck"
+            placeholder="\uC608: \uCCAD\uCD98 \uC21C\uB300\uD2B8\uB7ED"
           />
         </label>
         <label className="field">
@@ -75,7 +75,7 @@ export function RegistrationSheet({
           <input
             value={location}
             onChange={(event) => setLocation(event.target.value)}
-            placeholder="e.g. Seongbukcheon intersection"
+            placeholder="\uC608: \uC815\uB989\uC2DC\uC7A5 \uC785\uAD6C \uC55E"
           />
         </label>
         <label className="field">
@@ -83,7 +83,7 @@ export function RegistrationSheet({
           <input
             value={visitPattern}
             onChange={(event) => setVisitPattern(event.target.value)}
-            placeholder="e.g. Tue/Thu/Sat evenings"
+            placeholder="\uC608: \uD654/\uBAA9/\uD1A0 \uC800\uB141"
           />
         </label>
         <label className="field">
@@ -91,7 +91,7 @@ export function RegistrationSheet({
           <input
             value={businessCardPhoto}
             onChange={(event) => setBusinessCardPhoto(event.target.value)}
-            placeholder="e.g. Business card front"
+            placeholder="\uC608: \uBA85\uD568 \uC55E\uBA74 \uC0AC\uC9C4"
           />
         </label>
         <label className="field">
@@ -99,7 +99,7 @@ export function RegistrationSheet({
           <input
             value={menuBoardPhoto}
             onChange={(event) => setMenuBoardPhoto(event.target.value)}
-            placeholder="e.g. Menu board full photo"
+            placeholder="\uC608: \uBA54\uB274\uD310 \uC804\uCCB4 \uC0AC\uC9C4"
           />
         </label>
 
