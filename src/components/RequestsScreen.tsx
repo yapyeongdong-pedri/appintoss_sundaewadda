@@ -34,7 +34,7 @@ function getUpdateFieldLabel(field: UpdateRequest["field"]) {
     case "phone":
       return "\uC804\uD654\uBC88\uD638";
     case "closedNotice":
-      return "\uC6B4\uC601 \uC885\uB8CC";
+      return "\uD3D0\uC5C5\uC2E0\uACE0";
     default:
       return "\uC815\uBCF4";
   }

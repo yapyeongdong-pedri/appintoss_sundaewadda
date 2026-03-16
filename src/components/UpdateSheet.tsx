@@ -16,7 +16,7 @@ const FIELD_OPTIONS: Array<{ key: UpdateRequest["field"]; label: string }> = [
   { key: "businessHours", label: "\uC6B4\uC601 \uC2DC\uAC04" },
   { key: "location", label: "\uC704\uCE58" },
   { key: "phone", label: "\uC804\uD654\uBC88\uD638" },
-  { key: "closedNotice", label: "\uC601\uC5C5 \uC885\uB8CC" },
+  { key: "closedNotice", label: "\uD3D0\uC5C5\uC2E0\uACE0" },
 ];
 
 const MENU_CATEGORY_OPTIONS: MenuCategory[] = [
@@ -42,7 +42,7 @@ function getFieldPlaceholder(field: UpdateRequest["field"]) {
     case "phone":
       return "\uC608: 010-1234-5678";
     case "closedNotice":
-      return "\uC608: \uC694\uC998\uC740 \uC774 \uC790\uB9AC\uC5D0 \uC624\uC9C0 \uC54A\uC544\uC694";
+      return "\uC608: \uC694\uC998 \uC774 \uC790\uB9AC\uC5D0\uC11C \uBCF4\uAE30 \uD798\uB4E4\uC5B4\uC694";
     default:
       return "\uC218\uC815\uD560 \uB0B4\uC6A9\uC744 \uC785\uB825\uD574\uC8FC\uC138\uC694";
   }
@@ -122,6 +122,14 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
     setMenuPriceDraft("");
     setMenuCategory("\uAE30\uD0C0");
   }, [menuItems, open]);
+
+  useEffect(() => {
+    if (!open || field === "menu") {
+      return;
+    }
+
+    setValue(getCurrentFieldValue(vendor, field));
+  }, [field, open, vendor]);
 
   const handleClose = () => {
     setValue("");
@@ -246,16 +254,6 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
               </div>
             </div>
 
-            {selectedMenuName ? (
-              <div className="hint-card">
-                <p className="section-label">{"\uD604\uC7AC \uC815\uBCF4"}</p>
-                <div className="current-value-stack">
-                  <strong>{selectedMenuName}</strong>
-                  <span>{menuItems.find((item) => item.name === selectedMenuName)?.price ?? "-"}</span>
-                </div>
-              </div>
-            ) : null}
-
             <div className="field">
               <span>{"\uBA54\uB274 \uBD84\uB958"}</span>
               <div className="field-picker-grid">
@@ -292,10 +290,6 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
           </>
         ) : (
           <>
-            <div className="hint-card">
-              <p className="section-label">{"\uD604\uC7AC \uC815\uBCF4"}</p>
-              <p className="muted-text">{getCurrentFieldValue(vendor, field) || "\uB4F1\uB85D\uB41C \uC815\uBCF4 \uC5C6\uC74C"}</p>
-            </div>
             <label className="field">
               <span>{"\uC218\uC815\uD560 \uB0B4\uC6A9"}</span>
               <input
