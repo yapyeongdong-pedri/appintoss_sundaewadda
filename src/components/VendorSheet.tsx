@@ -29,6 +29,21 @@ export function VendorSheet({
     return null;
   }
 
+  const menuItems =
+    vendor.menuItems?.length > 0
+      ? vendor.menuItems
+      : vendor.menuSummary.map((name, index) => {
+          const prices = vendor.priceSummary
+            .split("/")
+            .map((part) => part.trim())
+            .filter(Boolean);
+
+          return {
+            name,
+            price: prices[index] ?? prices[prices.length - 1] ?? "-",
+          };
+        });
+
   return (
     <div className="detail-overlay" role="dialog" aria-modal="true">
       <button type="button" className="detail-dismiss" onClick={onClose} aria-label="Close detail" />
@@ -75,10 +90,10 @@ export function VendorSheet({
           <section className="detail-section">
             <div className="detail-section-head">
               <p className="section-label">{"\uBA54\uB274 \uBC0F \uAC00\uACA9"}</p>
-              <span className="muted-text">{vendor.menuItems.length}</span>
+              <span className="muted-text">{menuItems.length}</span>
             </div>
             <div className="menu-list">
-              {vendor.menuItems.map((item) => (
+              {menuItems.map((item) => (
                 <div className="menu-row" key={`${vendor.id}-${item.name}`}>
                   <strong>{item.name}</strong>
                   <span>{item.price}</span>
