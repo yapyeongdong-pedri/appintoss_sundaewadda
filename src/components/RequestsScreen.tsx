@@ -25,8 +25,6 @@ function getUpdateFieldLabel(field: UpdateRequest["field"]) {
   switch (field) {
     case "menu":
       return "\uBA54\uB274/\uAC00\uACA9";
-    case "price":
-      return "\uAC00\uACA9";
     case "visitPattern":
       return "\uC624\uB294 \uC694\uC77C";
     case "businessHours":
@@ -40,6 +38,17 @@ function getUpdateFieldLabel(field: UpdateRequest["field"]) {
     default:
       return "\uC815\uBCF4";
   }
+}
+
+function getUpdatePreview(request: UpdateRequest) {
+  if (request.field === "menu") {
+    const targetName = request.targetMenuName ?? request.currentMenuName ?? "\uBA54\uB274";
+    const nextName = request.proposedMenuName ?? targetName;
+    const nextPrice = request.proposedMenuPrice ?? request.currentMenuPrice ?? "-";
+    return `${targetName} -> ${nextName} ${nextPrice}`;
+  }
+
+  return request.value;
 }
 
 export function RequestsScreen({
@@ -128,7 +137,7 @@ export function RequestsScreen({
                   <div className="request-card-head">
                     <div>
                       <strong>{getUpdateFieldLabel(request.field)}</strong>
-                      <p>{request.value}</p>
+                      <p>{getUpdatePreview(request)}</p>
                     </div>
                     <Badge color="blue" variant="weak" size="small">
                       {"\uC811\uC218 \uC644\uB8CC"}
