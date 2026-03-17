@@ -1,5 +1,5 @@
 export type ReportKind = "open" | "closed";
-export type TruckStatus = "unknown" | "likelyOpen" | "likelyClosed" | "ownerConfirmed";
+export type TruckStatus = "unknown" | "likelyOpen" | "likelyClosed";
 export type VendorCategory =
   | "\uC21C\uB300"
   | "\uACF1\uCC3D"
@@ -35,8 +35,6 @@ export interface LiveReport {
   type: ReportKind;
   createdAt: string;
   reportDateKey?: string;
-  note?: string;
-  photoLabel?: string;
   reporterId: string;
   latitude?: number;
   longitude?: number;
@@ -63,7 +61,6 @@ export interface Vendor {
     latitude?: number;
     longitude?: number;
   };
-  ownerConfirmedToday?: boolean;
 }
 
 export interface VendorSummary extends Vendor {
@@ -92,14 +89,7 @@ export interface RegistrationRequest {
 export interface UpdateRequest {
   id: string;
   vendorId: string;
-  field:
-    | "menu"
-    | "menuBoard"
-    | "visitPattern"
-    | "businessHours"
-    | "location"
-    | "phone"
-    | "closedNotice";
+  field: "menuBoard" | "visitPattern" | "businessHours" | "location" | "phone" | "closedNotice";
   value: string;
   visitRules?: VisitRule[];
   menuBoardPhotos?: string[];

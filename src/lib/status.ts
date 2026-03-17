@@ -10,9 +10,9 @@ export function countReports(reports: LiveReport[]): Record<ReportKind, number> 
   );
 }
 
-export function deriveStatus(vendor: Vendor, reports: LiveReport[]): TruckStatus {
+export function deriveStatus(reports: LiveReport[]): TruckStatus {
   if (reports.length === 0) {
-    return vendor.ownerConfirmedToday ? "ownerConfirmed" : "unknown";
+    return "unknown";
   }
 
   const latest = [...reports].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
@@ -24,7 +24,7 @@ export function deriveStatus(vendor: Vendor, reports: LiveReport[]): TruckStatus
     return "likelyOpen";
   }
 
-  return vendor.ownerConfirmedToday ? "ownerConfirmed" : "unknown";
+  return "unknown";
 }
 
 export function buildVendorSummary(vendor: Vendor, reports: LiveReport[]): VendorSummary {
@@ -33,7 +33,7 @@ export function buildVendorSummary(vendor: Vendor, reports: LiveReport[]): Vendo
 
   return {
     ...vendor,
-    status: deriveStatus(vendor, scopedReports),
+    status: deriveStatus(scopedReports),
     reportCounts: countReports(scopedReports),
     latestReportAt: latestReport?.createdAt,
   };
@@ -41,8 +41,6 @@ export function buildVendorSummary(vendor: Vendor, reports: LiveReport[]): Vendo
 
 export function getStatusLabel(status: TruckStatus): string {
   switch (status) {
-    case "ownerConfirmed":
-      return "\uC601\uC5C5\uC911";
     case "likelyOpen":
       return "\uC601\uC5C5\uC911";
     case "likelyClosed":
@@ -54,8 +52,6 @@ export function getStatusLabel(status: TruckStatus): string {
 
 export function getStatusTone(status: TruckStatus): "blue" | "green" | "yellow" | "elephant" {
   switch (status) {
-    case "ownerConfirmed":
-      return "blue";
     case "likelyOpen":
       return "blue";
     case "likelyClosed":

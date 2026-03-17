@@ -1,29 +1,20 @@
-# Deployment Guide
+﻿# Deployment Guide
 
-## Current Deployment Stack
-- Source control: GitHub
-- Preview hosting: Vercel
-- Database: Supabase
-
-## Local Setup
-1. Create `.env`
-2. Add:
+## Local
+1. Set `.env` values:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
-3. Run the app locally
+   - optional `VITE_KAKAO_MAP_APP_KEY`
+2. Run dev server.
 
-## Supabase Setup
-1. Create a Supabase project
-2. Run `supabase/schema.sql` in SQL Editor
-3. Run `supabase/seed.sql` in SQL Editor
-4. Copy project URL and anon key into env vars
+## Supabase
+1. Execute `supabase/schema.sql`.
+2. Execute `supabase/seed.sql` (optional for production).
 
-## Vercel Setup
-1. Connect GitHub repo
-2. Set environment variables:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-3. Redeploy after env changes
+## Vercel
+1. Connect repository.
+2. Configure environment variables.
+3. Deploy and smoke test map/report/request flows.
 
-## Important Deployment Rule
-Keep the browser preview healthy first. Toss-specific runtime work should be added later in a way that does not break the open-web preview.
+## Rule
+Always keep browser preview working when adding platform-specific integrations.

@@ -3,7 +3,6 @@ import { IntroSection } from "./components/IntroSection";
 import { NeighborhoodMap } from "./components/NeighborhoodMap";
 import { RegistrationSheet } from "./components/RegistrationSheet";
 import { RequestsScreen } from "./components/RequestsScreen";
-import { SettingsScreen } from "./components/SettingsScreen";
 import { UpdateSheet } from "./components/UpdateSheet";
 import { VendorSheet } from "./components/VendorSheet";
 import { findDuplicateCandidates } from "./lib/duplicates";
@@ -24,7 +23,7 @@ import {
 import { buildVendorSummary } from "./lib/status";
 import type { LiveReport, RegistrationRequest, UpdateRequest, Vendor } from "./types";
 
-type AppTab = "requests" | "map" | "settings";
+type AppTab = "requests" | "map";
 
 function App() {
   const [started, setStarted] = useState(false);
@@ -231,7 +230,6 @@ function App() {
                 onDismissFeedback={() => setRequestsFeedbackMessage(undefined)}
               />
             ) : null}
-            {activeTab === "settings" ? <SettingsScreen /> : null}
           </div>
 
           <nav className="bottom-nav" aria-label="main navigation">

@@ -85,7 +85,6 @@ export const seedVendors: Vendor[] = [
       latitude: 37.6108,
       longitude: 127.0298,
     },
-    ownerConfirmedToday: true,
   },
 ];
 
@@ -97,7 +96,6 @@ export const seedReports: LiveReport[] = [
     createdAt: "2026-03-15T18:05:00+09:00",
     reporterId: "guest-a",
     reportDateKey: "2026-03-15",
-    photoLabel: "\uC21C\uB300 \uC0AC\uC9C4",
   },
   {
     id: "report-2",

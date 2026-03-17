@@ -1,6 +1,4 @@
-# Project Structure
-
-## Current Structure
+﻿# Project Structure
 
 ```text
 appintoss_sundaewadda/
@@ -8,6 +6,13 @@ appintoss_sundaewadda/
   CLAUDE.md
   README.md
   docs/
+    ai-handoff/
+      01-prd.md
+      02-ux-spec.md
+      03-technical-spec.md
+      04-ai-implementation-playbook.md
+      05-qa-acceptance.md
+      06-deployment-ops.md
     architecture.md
     current-status.md
     database-schema.md
@@ -28,31 +33,6 @@ appintoss_sundaewadda/
     seed.sql
 ```
 
-## Why This Structure Is Efficient
-- `AGENTS.md` and `CLAUDE.md` stay short for agent context
-- `README.md` acts as the entry point
-- `docs/` stores human-readable detail without bloating agent context
-- `src/` stays focused on shipped code
-- `supabase/` stays focused on DB artifacts
-
-## Best Practice For Context Efficiency
-- Read `AGENTS.md` or `CLAUDE.md` first
-- Read `README.md` second
-- Only open a specific file in `docs/` when needed
-- Do not put long planning notes into agent bootstrap files
-
-## Recommended Future Growth Path
-
-### Keep these files short
-- `AGENTS.md`
-- `CLAUDE.md`
-- `README.md`
-
-### Move detailed decisions into docs
-- product direction
-- DB decisions
-- deployment notes
-- current implementation status
-
-### Split source code by feature later
-This is the best next structural improvement once the UI grows further.
+## Notes
+- `docs/ai-handoff/` is the canonical package for rebuilding the app with another AI.
+- `supabase/` keeps a single canonical schema and seed set.

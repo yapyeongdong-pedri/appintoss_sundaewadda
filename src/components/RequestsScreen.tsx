@@ -26,7 +26,6 @@ function getRegistrationStatus(request: RegistrationRequest) {
 
 function getUpdateFieldLabel(field: UpdateRequest["field"]) {
   switch (field) {
-    case "menu":
     case "menuBoard":
       return "\uBA54\uB274\uD310 \uAD50\uCCB4";
     case "visitPattern":
@@ -48,10 +47,6 @@ function getUpdatePreview(request: UpdateRequest) {
   if (request.field === "menuBoard") {
     const photoCount = request.menuBoardPhotos?.length ?? 0;
     return `${request.value} / \uBA54\uB274\uD310 ${photoCount}\uC7A5`;
-  }
-
-  if (request.field === "menu") {
-    return request.value;
   }
 
   return request.value;

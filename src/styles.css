@@ -357,8 +357,7 @@ button {
   color: #fff;
 }
 
-.detail-status-main-likelyOpen,
-.detail-status-main-ownerConfirmed {
+.detail-status-main-likelyOpen {
   background: linear-gradient(180deg, #3182f6 0%, #1b64da 100%);
   color: #fff;
 }
@@ -895,8 +894,7 @@ button {
 }
 
 .map-card,
-.requests-card,
-.settings-card {
+.requests-card {
   height: 100%;
 }
 
@@ -1039,11 +1037,6 @@ button {
 .pin-likelyClosed .pin-dot,
 .legend-closed {
   background: #d95c5c;
-}
-
-.pin-ownerConfirmed .pin-dot,
-.legend-owner {
-  background: #00a86b;
 }
 
 .pin-selected .pin-label {
@@ -1314,8 +1307,7 @@ button {
   line-height: 1;
 }
 
-.requests-card,
-.settings-card {
+.requests-card {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1342,24 +1334,21 @@ button {
   gap: 10px;
 }
 
-.request-list,
-.settings-stack {
+.request-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .request-card,
-.request-empty-card,
-.settings-card-item {
+.request-empty-card {
   border-radius: 6px;
   background: #f8fafc;
   padding: 16px;
 }
 
 .request-card strong,
-.request-empty-card strong,
-.settings-card-item strong {
+.request-empty-card strong {
   display: block;
   margin-bottom: 4px;
   font-size: 15px;
@@ -1367,8 +1356,7 @@ button {
 }
 
 .request-card p,
-.request-empty-card p,
-.settings-card-item p {
+.request-empty-card p {
   margin: 0;
   color: #6b7684;
   font-size: 13px;

@@ -3,19 +3,17 @@ import { seedReports, seedVendors } from "../data/seed";
 import { buildVendorSummary, deriveStatus } from "./status";
 
 describe("deriveStatus", () => {
-  it("returns ownerConfirmed when owner confirmation exists", () => {
+  it("returns unknown when there are no reports", () => {
     const vendor = seedVendors.find((item) => item.id === "vendor-sundae-2");
     expect(vendor).toBeDefined();
-    expect(
-      deriveStatus(vendor!, seedReports.filter((report) => report.vendorId === vendor!.id)),
-    ).toBe("ownerConfirmed");
+    expect(deriveStatus([])).toBe("unknown");
   });
 
   it("returns likelyOpen when open reports lead", () => {
     const vendor = seedVendors.find((item) => item.id === "vendor-sundae-1");
     expect(vendor).toBeDefined();
     expect(
-      deriveStatus(vendor!, seedReports.filter((report) => report.vendorId === vendor!.id)),
+      deriveStatus(seedReports.filter((report) => report.vendorId === vendor!.id)),
     ).toBe("likelyOpen");
   });
 
@@ -23,7 +21,7 @@ describe("deriveStatus", () => {
     const vendor = seedVendors.find((item) => item.id === "vendor-gopchang-1");
     expect(vendor).toBeDefined();
     expect(
-      deriveStatus(vendor!, seedReports.filter((report) => report.vendorId === vendor!.id)),
+      deriveStatus(seedReports.filter((report) => report.vendorId === vendor!.id)),
     ).toBe("likelyClosed");
   });
 });

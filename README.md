@@ -1,22 +1,19 @@
-# SundaeWatta
+﻿# SundaeWatta
 
-`순대와따` is a mobile-first web app for checking whether nearby sundae and gopchang trucks are open today.
+Mobile-first app for checking nearby sundae/gopchang truck operating status.
 
 ## Start Here
-- Product overview: `docs/service-overview.md`
-- Current implementation status: `docs/current-status.md`
-- Architecture: `docs/architecture.md`
-- Database: `docs/database-schema.md`
-- Deployment: `docs/deployment-guide.md`
-- Project structure: `docs/project-structure.md`
+- AI handoff package: `docs/ai-handoff/`
+- Current architecture: `docs/architecture.md`
+- Current database contract: `docs/database-schema.md`
+- Deployment baseline: `docs/deployment-guide.md`
 
-## Quick Technical Summary
-- Frontend: Vite + React + TypeScript
-- Data: Supabase primary, `localStorage` fallback
-- Hosting: Vercel
-- Future target: AppsInToss-compatible runtime integration
+## Tech Stack
+- Vite + React + TypeScript
+- Supabase (primary data)
+- localStorage fallback
 
-## Important Project Rules
-- Keep mobile-first behavior
-- Keep main screens simple
-- Do not break the Vercel preview while preparing future Toss integration
+## Environment Variables
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+- `VITE_KAKAO_MAP_APP_KEY` (optional)
