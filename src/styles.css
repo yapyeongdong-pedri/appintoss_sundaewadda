@@ -608,16 +608,16 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 }
 
 .hero-artwork {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 10px;
-  padding: 14px 12px 8px;
-  border-radius: 14px;
+  margin-top: 4px;
+  padding: 6px 8px 2px;
+  border-radius: 10px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.72)),
     linear-gradient(135deg, rgba(49, 130, 246, 0.08), rgba(245, 158, 11, 0.08));
@@ -625,7 +625,8 @@ button {
 
 .hero-artwork-image {
   display: block;
-  width: min(100%, 220px);
+  width: min(100%, 160px);
+  max-height: 96px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 10px 20px rgba(15, 23, 42, 0.08));
