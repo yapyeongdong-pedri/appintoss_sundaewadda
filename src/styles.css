@@ -608,16 +608,16 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 
 .hero-artwork {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 2px;
-  padding: 4px 8px 0;
-  border-radius: 10px;
+  margin-top: 6px;
+  padding: 10px 12px 4px;
+  border-radius: 14px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.72)),
     linear-gradient(135deg, rgba(49, 130, 246, 0.08), rgba(245, 158, 11, 0.08));
@@ -625,11 +625,11 @@ button {
 
 .hero-artwork-image {
   display: block;
-  width: min(100%, 184px);
-  max-height: 112px;
+  width: min(100%, 220px);
+  max-height: 136px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 10px 20px rgba(15, 23, 42, 0.08));
+  filter: drop-shadow(0 14px 24px rgba(15, 23, 42, 0.1));
 }
 
 .app-body {
@@ -682,7 +682,7 @@ button {
 }
 
 .hero-feature-list {
-  gap: 10px;
+  gap: 8px;
 }
 
 .hero-feature-card {
@@ -690,7 +690,7 @@ button {
   grid-template-columns: 64px 1fr;
   gap: 14px;
   align-items: center;
-  padding: 14px;
+  padding: 13px 14px;
   border-radius: 7px;
   background: #f8fafc;
 }
