@@ -7,13 +7,12 @@ interface IntroSectionProps {
 export function IntroSection({ onStart }: IntroSectionProps) {
   return (
     <section className="hero-card hero-card-intro">
-      <div className="hero-artwork">
-        <img src="/sundaewadda.png" alt="\uC21C\uB300\uC640\uB530 \uC571 \uC774\uBBF8\uC9C0" className="hero-artwork-image" />
-      </div>
-
       <div className="hero-copy">
         <h1 className="hero-title">{"\uC21C\uB300\uC640\uB530"}</h1>
         <p className="hero-description">{"'\uC624\uB298 \uC9D1 \uC55E\uC5D0 \uACF1\uCC3D \uD2B8\uB7ED \uC654\uB098?'"}</p>
+        <div className="hero-artwork">
+          <img src="/sundaewadda.png" alt="\uC21C\uB300\uC640\uB530 \uC571 \uC774\uBBF8\uC9C0" className="hero-artwork-image" />
+        </div>
       </div>
 
       <div className="hero-feature-list">
