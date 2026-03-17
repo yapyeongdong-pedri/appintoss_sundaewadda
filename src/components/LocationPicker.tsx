@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { geocodeAddress, loadKakaoMapSdk } from "../lib/kakaoMap";
+import { loadKakaoMapSdk } from "../lib/kakaoMap";
 
 interface LocationPickerProps {
   description: string;
@@ -54,11 +54,11 @@ export function LocationPicker({
             latitude: latLng.getLat(),
             longitude: latLng.getLng(),
           });
-          setMapMessage("\uC120\uD0DD\uD55C \uD540 \uC704\uCE58\uB97C \uC800\uC7A5\uD560\uAC8C\uC694.");
+          setMapMessage("\uD540 \uC704\uCE58\uB97C \uC800\uC7A5\uD588\uC5B4\uC694.");
         });
 
         setMapStatus("ready");
-        setMapMessage("\uC9C0\uB3C4\uB97C \uD074\uB9AD\uD574 \uC815\uD655\uD55C \uD540 \uC704\uCE58\uB97C \uC9D1\uC5B4\uC8FC\uC138\uC694.");
+        setMapMessage("\uC9C0\uB3C4\uC5D0\uC11C \uD540\uC744 \uBA3C\uC800 \uC120\uD0DD\uD574\uC8FC\uC138\uC694.");
       } catch (error) {
         console.warn("Location picker map unavailable.", error);
         if (!disposed) {
@@ -107,29 +107,11 @@ export function LocationPicker({
     mapInstanceRef.current.panTo(position);
   }, [latitude, longitude, mapStatus]);
 
-  const handleFindPinFromDescription = async () => {
-    const geocoded = await geocodeAddress(description);
-    if (geocoded == null) {
-      setMapMessage("\uC124\uBA85\uC73C\uB85C \uC704\uCE58\uB97C \uCC3E\uC9C0 \uBABB\uD588\uC5B4\uC694. \uC9C0\uB3C4\uC5D0\uC11C \uC9C1\uC811 \uD540\uC744 \uCC0D\uC5B4\uC8FC\uC138\uC694.");
-      return;
-    }
-
-    onPinChange(geocoded);
-    setMapMessage("\uC124\uBA85 \uAE30\uC900\uC73C\uB85C \uD540 \uC704\uCE58\uB97C \uC62E\uACA8\uC5D0 \uB193\uC558\uC5B4\uC694.");
-  };
-
   return (
     <div className="location-picker">
-      <label className="field">
-        <span>{"\uC704\uCE58 \uC124\uBA85"}</span>
-        <input
-          value={description}
-          onChange={(event) => onDescriptionChange(event.target.value)}
-          placeholder="\uC608: \uC815\uB989\uC2DC\uC7A5 \uC785\uAD6C \uC55E"
-        />
-      </label>
-
-      <ButtonRow onFindPinFromDescription={handleFindPinFromDescription} disabled={description.trim() === ""} />
+      <div className="field">
+        <span>{"\uD540 \uC120\uD0DD"}</span>
+      </div>
 
       <div className="location-picker-map-shell">
         {mapStatus !== "fallback" ? <div ref={mapElementRef} className="location-picker-map" /> : null}
@@ -142,34 +124,14 @@ export function LocationPicker({
         {mapMessage ? <div className="location-picker-note">{mapMessage}</div> : null}
       </div>
 
-      <div className="hint-card">
-        <p className="section-label">{"\uC120\uD0DD\uD55C \uD540 \uC704\uCE58"}</p>
-        <p className="muted-text">
-          {latitude != null && longitude != null
-            ? `Lat ${latitude.toFixed(5)} / Lng ${longitude.toFixed(5)}`
-            : "\uC544\uC9C1 \uD540 \uC704\uCE58\uB97C \uACE0\uB974\uC9C0 \uC54A\uC558\uC5B4\uC694."}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-interface ButtonRowProps {
-  onFindPinFromDescription: () => void;
-  disabled: boolean;
-}
-
-function ButtonRow({ onFindPinFromDescription, disabled }: ButtonRowProps) {
-  return (
-    <div className="location-picker-actions">
-      <button
-        type="button"
-        className="field-chip location-picker-action"
-        onClick={onFindPinFromDescription}
-        disabled={disabled}
-      >
-        {"\uC124\uBA85\uC73C\uB85C \uD540 \uCC3E\uAE30"}
-      </button>
+      <label className="field">
+        <span>{"\uC704\uCE58 \uC124\uBA85"}</span>
+        <input
+          value={description}
+          onChange={(event) => onDescriptionChange(event.target.value)}
+          placeholder="(ex) GS25 \uC55E \uC2E0\uD638\uB4F1"
+        />
+      </label>
     </div>
   );
 }

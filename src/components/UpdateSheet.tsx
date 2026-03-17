@@ -331,7 +331,7 @@ export function UpdateSheet({ open, vendorId, vendor, onClose, onSubmit }: Updat
           </div>
         ) : field === "location" ? (
           <div className="field">
-            <span>{"\uC704\uCE58 \uC124\uBA85 / \uC815\uD655\uD55C \uD540"}</span>
+            <span>{"\uD540 \uC120\uD0DD \uD6C4 \uC704\uCE58 \uC124\uBA85"}</span>
             <LocationPicker
               description={locationDescription}
               latitude={locationPin.latitude}

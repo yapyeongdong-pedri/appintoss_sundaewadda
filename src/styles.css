@@ -779,22 +779,32 @@ button {
 
 .business-hours-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 10px;
+  align-items: end;
 }
 
-.location-picker-actions {
-  display: flex;
-  gap: 8px;
+.business-hours-divider {
+  padding-bottom: 14px;
+  color: #6b7684;
+  font-size: 18px;
+  font-weight: 700;
 }
 
-.location-picker-action {
+.business-hours-end span.business-hours-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
   border: 0;
 }
 
-.location-picker-action:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.business-hours-end {
+  position: relative;
 }
 
 .location-picker-map-shell {
@@ -1127,17 +1137,6 @@ button {
   line-height: 1.6;
 }
 
-.duplicate-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 0;
-}
-
-.duplicate-row + .duplicate-row {
-  border-top: 1px solid #e5e8eb;
-}
-
 .field {
   display: flex;
   flex-direction: column;
@@ -1366,7 +1365,7 @@ button {
   }
 
   .business-hours-grid {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }
 
   .field-picker-grid {

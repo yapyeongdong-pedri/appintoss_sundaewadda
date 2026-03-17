@@ -83,7 +83,13 @@ function App() {
       draft.latitude != null && draft.longitude != null
         ? { latitude: draft.latitude, longitude: draft.longitude }
         : await geocodeAddress(draft.location);
-    const duplicates = findDuplicateCandidates(vendors, { name: draft.name, location: draft.location });
+    const duplicates = findDuplicateCandidates(vendors, {
+      name: draft.name,
+      phone: draft.phone,
+      location: draft.location,
+      latitude: geocoded?.latitude,
+      longitude: geocoded?.longitude,
+    });
     const nextRequest = {
       ...draft,
       latitude: geocoded?.latitude,
@@ -219,10 +225,8 @@ function App() {
 
       <RegistrationSheet
         open={registrationOpen}
-        vendors={vendors}
         onClose={() => setRegistrationOpen(false)}
         onSubmit={handleSubmitRegistration}
-        onCheckDuplicates={(name, location) => findDuplicateCandidates(vendors, { name, location })}
       />
 
       <UpdateSheet

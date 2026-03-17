@@ -1,8 +1,8 @@
-import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import { formatBusinessHours, type BusinessHoursValue } from "../lib/businessHours";
 import { readFilesAsDataUrls } from "../lib/imageFiles";
 import { areVisitRulesValid, formatVisitRules } from "../lib/visitRules";
-import type { MenuCategory, RegistrationRequest, Vendor } from "../types";
+import type { MenuCategory, RegistrationRequest } from "../types";
 import { BusinessHoursEditor } from "./BusinessHoursEditor";
 import { LocationPicker } from "./LocationPicker";
 import { VisitRuleEditor } from "./VisitRuleEditor";
@@ -10,10 +10,8 @@ import { BottomSheet, Button } from "../ui";
 
 interface RegistrationSheetProps {
   open: boolean;
-  vendors: Vendor[];
   onClose: () => void;
   onSubmit: (draft: Omit<RegistrationRequest, "id" | "submittedAt" | "duplicateCandidateIds">) => Promise<void>;
-  onCheckDuplicates: (name: string, location: string) => Vendor[];
 }
 
 const MENU_CATEGORY_OPTIONS: MenuCategory[] = [
@@ -27,12 +25,11 @@ const MENU_CATEGORY_OPTIONS: MenuCategory[] = [
 
 export function RegistrationSheet({
   open,
-  vendors,
   onClose,
   onSubmit,
-  onCheckDuplicates,
 }: RegistrationSheetProps) {
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [locationDescription, setLocationDescription] = useState("");
   const [locationPin, setLocationPin] = useState<{ latitude?: number; longitude?: number }>({});
   const [visitRules, setVisitRules] = useState<RegistrationRequest["visitRules"]>([]);
@@ -42,11 +39,6 @@ export function RegistrationSheet({
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const businessCardInputRef = useRef<HTMLInputElement | null>(null);
   const menuBoardInputRef = useRef<HTMLInputElement | null>(null);
-
-  const candidates = useMemo(
-    () => onCheckDuplicates(name, locationDescription),
-    [locationDescription, name, onCheckDuplicates],
-  );
 
   const handleBusinessCardSelect = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files == null || event.target.files.length === 0) {
@@ -75,6 +67,7 @@ export function RegistrationSheet({
   const handleSubmit = async () => {
     await onSubmit({
       name,
+      phone,
       location: locationDescription.trim(),
       latitude: locationPin.latitude,
       longitude: locationPin.longitude,
@@ -86,6 +79,7 @@ export function RegistrationSheet({
       menuCategories,
     });
     setName("");
+    setPhone("");
     setLocationDescription("");
     setLocationPin({});
     setVisitRules([]);
@@ -117,6 +111,7 @@ export function RegistrationSheet({
             onClick={handleSubmit}
             disabled={
               !name ||
+              !phone.trim() ||
               !locationDescription.trim() ||
               !areVisitRulesValid(visitRules ?? []) ||
               businessHours.startHour >= businessHours.endHour ||
@@ -131,14 +126,19 @@ export function RegistrationSheet({
       <div className="sheet-content">
         <label className="field">
           <span>{"\uD2B8\uB7ED \uC774\uB984"}</span>
+          <input value={name} onChange={(event) => setName(event.target.value)} />
+        </label>
+        <label className="field">
+          <span>{"\uD2B8\uB7ED \uC0AC\uC7A5\uB2D8 \uBC88\uD638"}</span>
           <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="\uC608: \uCCAD\uCD98 \uC21C\uB300\uD2B8\uB7ED"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            placeholder="010-1234-5678"
+            inputMode="tel"
           />
         </label>
         <div className="field">
-          <span>{"\uC704\uCE58 \uC124\uBA85 / \uC815\uD655\uD55C \uD540"}</span>
+          <span>{"\uD540 \uC120\uD0DD \uD6C4 \uC704\uCE58 \uC124\uBA85"}</span>
           <LocationPicker
             description={locationDescription}
             latitude={locationPin.latitude}
@@ -243,24 +243,6 @@ export function RegistrationSheet({
           <small className="field-help">
             {"\uBA54\uB274\uC640 \uAC00\uACA9\uC774 \uC798 \uBCF4\uC774\uB294 \uCD5C\uC2E0 \uBA54\uB274\uD310 \uC0AC\uC9C4\uC774 \uC88B\uC544\uC694."}
           </small>
-        </div>
-
-        <div className="hint-card">
-          <p className="section-label">{"\uAE30\uC874 \uD2B8\uB7ED \uD6C4\uBCF4"}</p>
-          {candidates.length === 0 ? (
-            <p className="muted-text">
-              {vendors.length > 0
-                ? "\uBE44\uC2B7\uD55C \uD6C4\uBCF4\uAC00 \uC5C6\uC5B4\uC694."
-                : "\uB4F1\uB85D\uB41C \uD2B8\uB7ED\uC774 \uC544\uC9C1 \uC5C6\uC5B4\uC694."}
-            </p>
-          ) : (
-            candidates.map((candidate) => (
-              <div className="duplicate-row" key={candidate.id}>
-                <strong>{candidate.name}</strong>
-                <span>{candidate.position.address}</span>
-              </div>
-            ))
-          )}
         </div>
       </div>
     </BottomSheet>

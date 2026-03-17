@@ -71,6 +71,7 @@ export interface VendorSummary extends Vendor {
 export interface RegistrationRequest {
   id: string;
   name: string;
+  phone: string;
   location: string;
   latitude?: number;
   longitude?: number;

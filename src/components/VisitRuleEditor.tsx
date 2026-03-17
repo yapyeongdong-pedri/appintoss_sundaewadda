@@ -2,9 +2,7 @@ import type { VisitRule } from "../types";
 import {
   MONTHLY_NTH_OPTIONS,
   WEEKDAY_OPTIONS,
-  areVisitRulesValid,
   createVisitRule,
-  formatVisitRules,
 } from "../lib/visitRules";
 
 interface VisitRuleEditorProps {
@@ -21,7 +19,6 @@ const MODE_OPTIONS: Array<{ value: VisitRule["mode"]; label: string }> = [
 
 export function VisitRuleEditor({ value, onChange }: VisitRuleEditorProps) {
   const rules = value.length > 0 ? value : [createVisitRule()];
-  const shouldShowPreview = areVisitRulesValid(rules) && !rules.some((rule) => rule.mode === "custom");
 
   const updateRule = (index: number, nextRule: VisitRule) => {
     onChange(rules.map((rule, ruleIndex) => (ruleIndex === index ? nextRule : rule)));
@@ -181,13 +178,6 @@ export function VisitRuleEditor({ value, onChange }: VisitRuleEditorProps) {
       >
         {"\uC6B4\uC601 \uADDC\uCE59 \uCD94\uAC00"}
       </button>
-
-      {shouldShowPreview ? (
-        <div className="hint-card">
-          <p className="section-label">{"\uC6B4\uC601\uC694\uC77C \uBBF8\uB9AC\uBCF4\uAE30"}</p>
-          <p className="muted-text">{formatVisitRules(rules)}</p>
-        </div>
-      ) : null}
     </div>
   );
 }

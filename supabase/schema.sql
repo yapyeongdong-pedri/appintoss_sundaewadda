@@ -42,6 +42,7 @@ create index if not exists live_reports_created_at_idx on public.live_reports (c
 create table if not exists public.registration_requests (
   id text primary key,
   name text not null,
+  phone text not null default '',
   location text not null,
   visit_pattern text not null,
   business_card_photo text not null default '',

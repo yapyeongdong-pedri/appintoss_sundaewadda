@@ -1,4 +1,4 @@
-import { HOUR_OPTIONS, formatBusinessHours, type BusinessHoursValue } from "../lib/businessHours";
+import { HOUR_OPTIONS, type BusinessHoursValue } from "../lib/businessHours";
 
 interface BusinessHoursEditorProps {
   value: BusinessHoursValue;
@@ -6,13 +6,11 @@ interface BusinessHoursEditorProps {
 }
 
 export function BusinessHoursEditor({ value, onChange }: BusinessHoursEditorProps) {
-  const isValid = value.startHour < value.endHour;
-
   return (
     <div className="business-hours-editor">
       <div className="business-hours-grid">
         <label className="field">
-          <span>{"\uC2DC\uC791 \uC2DC\uAC04"}</span>
+          <span>{"\uC601\uC5C5\uC2DC\uAC04"}</span>
           <select
             value={value.startHour}
             onChange={(event) => onChange({ ...value, startHour: Number(event.target.value) })}
@@ -25,8 +23,12 @@ export function BusinessHoursEditor({ value, onChange }: BusinessHoursEditorProp
           </select>
         </label>
 
-        <label className="field">
-          <span>{"\uC885\uB8CC \uC2DC\uAC04"}</span>
+        <div className="business-hours-divider" aria-hidden="true">
+          {"~"}
+        </div>
+
+        <label className="field business-hours-end">
+          <span className="business-hours-sr-only">{"\uC885\uB8CC \uC2DC\uAC04"}</span>
           <select
             value={value.endHour}
             onChange={(event) => onChange({ ...value, endHour: Number(event.target.value) })}
@@ -38,15 +40,6 @@ export function BusinessHoursEditor({ value, onChange }: BusinessHoursEditorProp
             ))}
           </select>
         </label>
-      </div>
-
-      <div className="hint-card">
-        <p className="section-label">{"\uC601\uC5C5\uC2DC\uAC04 \uBBF8\uB9AC\uBCF4\uAE30"}</p>
-        <p className="muted-text">
-          {isValid
-            ? formatBusinessHours(value)
-            : "\uC885\uB8CC \uC2DC\uAC04\uC740 \uC2DC\uC791 \uC2DC\uAC04\uBCF4\uB2E4 \uB4A4\uC5D0 \uC624\uB3C4\uB85D \uC120\uD0DD\uD574\uC8FC\uC138\uC694."}
-        </p>
       </div>
     </div>
   );

@@ -53,6 +53,7 @@ interface LiveReportRow {
 interface RegistrationRequestRow {
   id: string;
   name: string;
+  phone?: string | null;
   location: string;
   latitude?: number | null;
   longitude?: number | null;
@@ -140,6 +141,7 @@ function mapRegistrationRequestRow(row: RegistrationRequestRow): RegistrationReq
   return {
     id: row.id,
     name: row.name,
+    phone: row.phone ?? "",
     location: row.location,
     latitude: row.latitude ?? undefined,
     longitude: row.longitude ?? undefined,
@@ -272,6 +274,7 @@ export async function createRegistrationRequest(
   const legacyPayload = {
     id: request.id,
     name: request.name,
+    phone: request.phone,
     location: request.location,
     latitude: request.latitude ?? null,
     longitude: request.longitude ?? null,
@@ -295,7 +298,7 @@ export async function createRegistrationRequest(
     return;
   }
 
-  if ("visit_rules" in payloadWithVisitRules || "business_hours" in payloadWithVisitRules) {
+  if ("visit_rules" in payloadWithVisitRules || "business_hours" in payloadWithVisitRules || "phone" in payloadWithVisitRules) {
     const fallbackPayload = {
       id: request.id,
       name: request.name,
