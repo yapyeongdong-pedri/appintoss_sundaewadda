@@ -9,6 +9,13 @@ import { VendorSheet } from "./components/VendorSheet";
 import { findDuplicateCandidates } from "./lib/duplicates";
 import { geocodeAddress } from "./lib/kakaoMap";
 import {
+  canSubmitLiveReport,
+  getDistanceInMeters,
+  getOrCreateReporterKey,
+  getReportDateKey,
+  hasSubmittedSameReportToday,
+} from "./lib/liveReports";
+import {
   createLiveReport,
   createRegistrationRequest,
   createUpdateRequest,
@@ -62,13 +69,67 @@ function App() {
 
   const selectedVendor = vendorSummaries.find((vendor) => vendor.id === selectedVendorId);
 
-  const handleReport = async (vendorId: string, type: "open" | "notYet" | "closed") => {
+  const handleReport = async (vendorId: string, type: "open" | "closed") => {
+    const vendor = vendors.find((item) => item.id === vendorId);
+    if (vendor == null || vendor.position.latitude == null || vendor.position.longitude == null) {
+      setFeedbackMessage("\uD2B8\uB7ED \uC704\uCE58 \uC815\uBCF4\uAC00 \uC544\uC9C1 \uBD80\uC871\uD574 \uC81C\uBCF4\uD560 \uC218 \uC5C6\uC5B4\uC694.");
+      return;
+    }
+
+    if (!("geolocation" in navigator)) {
+      setFeedbackMessage("\uC774 \uAE30\uAE30\uC5D0\uC11C\uB294 \uC704\uCE58 \uD655\uC778\uC744 \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uC544\uC694.");
+      return;
+    }
+
+    const position = await new Promise<GeolocationPosition | null>((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (nextPosition) => resolve(nextPosition),
+        () => resolve(null),
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 30000,
+        },
+      );
+    });
+
+    if (position == null) {
+      setFeedbackMessage(
+        "\uC2E4\uC2DC\uAC04 \uC81C\uBCF4\uB294 \uD604\uC7A5 \uD655\uC778\uC744 \uC704\uD574 \uC704\uCE58 \uAD8C\uD55C\uC774 \uD544\uC694\uD574\uC694.",
+      );
+      return;
+    }
+
+    const distanceMeters = getDistanceInMeters(
+      position.coords.latitude,
+      position.coords.longitude,
+      vendor.position.latitude,
+      vendor.position.longitude,
+    );
+    const permission = canSubmitLiveReport(distanceMeters, position.coords.accuracy);
+    if (!permission.allowed) {
+      setFeedbackMessage(permission.message);
+      return;
+    }
+
+    const reporterKey = getOrCreateReporterKey();
+    const createdAt = new Date().toISOString();
+    const reportDateKey = getReportDateKey(createdAt);
+    if (hasSubmittedSameReportToday(reports, vendorId, type, reporterKey, reportDateKey)) {
+      setFeedbackMessage("\uAC19\uC740 \uC81C\uBCF4\uB294 \uD558\uB8E8\uC5D0 \uD55C \uBC88\uB9CC \uAC00\uB2A5\uD574\uC694.");
+      return;
+    }
+
     const nextReport: LiveReport = {
       id: crypto.randomUUID(),
       vendorId,
       type,
-      createdAt: new Date().toISOString(),
-      reporterId: "guest-device",
+      createdAt,
+      reportDateKey,
+      reporterId: reporterKey,
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      accuracy: position.coords.accuracy,
     };
     const nextReports = [nextReport, ...reports];
     setReports(nextReports);

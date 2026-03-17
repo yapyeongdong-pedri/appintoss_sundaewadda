@@ -6,27 +6,25 @@ export function countReports(reports: LiveReport[]): Record<ReportKind, number> 
       acc[report.type] += 1;
       return acc;
     },
-    { open: 0, notYet: 0, closed: 0 },
+    { open: 0, closed: 0 },
   );
 }
 
 export function deriveStatus(vendor: Vendor, reports: LiveReport[]): TruckStatus {
   if (reports.length === 0) {
-    return "unknown";
+    return vendor.ownerConfirmedToday ? "ownerConfirmed" : "unknown";
   }
 
   const latest = [...reports].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-  const counts = countReports(reports);
-
-  if (latest.type === "closed" && counts.closed >= counts.open) {
+  if (latest.type === "closed") {
     return "likelyClosed";
   }
 
-  if (latest.type === "open" || counts.open > counts.closed) {
+  if (latest.type === "open") {
     return "likelyOpen";
   }
 
-  return "unknown";
+  return vendor.ownerConfirmedToday ? "ownerConfirmed" : "unknown";
 }
 
 export function buildVendorSummary(vendor: Vendor, reports: LiveReport[]): VendorSummary {

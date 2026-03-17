@@ -8,6 +8,7 @@ import {
   saveLocalReports,
   saveLocalUpdateRequests,
 } from "./localStore";
+import { sanitizeLiveReports } from "./liveReports";
 import { hasSupabaseConfig, supabase } from "./supabase";
 
 interface VendorRow {
@@ -43,11 +44,16 @@ interface VendorMenuItemRow {
 interface LiveReportRow {
   id: string;
   vendor_id: string;
-  type: LiveReport["type"];
+  type: string;
   created_at: string;
   note: string | null;
   photo_label: string | null;
   reporter_id: string;
+  reporter_key?: string | null;
+  report_date_key?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  accuracy?: number | null;
 }
 
 interface RegistrationRequestRow {
@@ -129,11 +135,15 @@ function mapReportRow(row: LiveReportRow): LiveReport {
   return {
     id: row.id,
     vendorId: row.vendor_id,
-    type: row.type,
+    type: row.type as LiveReport["type"],
     createdAt: row.created_at,
+    reportDateKey: row.report_date_key ?? undefined,
     note: row.note ?? undefined,
     photoLabel: row.photo_label ?? undefined,
-    reporterId: row.reporter_id,
+    reporterId: row.reporter_key ?? row.reporter_id,
+    latitude: row.latitude ?? undefined,
+    longitude: row.longitude ?? undefined,
+    accuracy: row.accuracy ?? undefined,
   };
 }
 
@@ -228,7 +238,7 @@ export async function loadAppData(): Promise<AppDataBundle> {
 
     return {
       vendors: (vendorsResult.data as VendorRow[]).map((row) => mapVendorRow(row, menuMap.get(row.id) ?? [])),
-      reports: (reportsResult.data as LiveReportRow[]).map(mapReportRow),
+      reports: sanitizeLiveReports((reportsResult.data as LiveReportRow[]).map(mapReportRow)),
       registrationRequests: (registrationResult.data as RegistrationRequestRow[]).map(
         mapRegistrationRequestRow,
       ),
@@ -252,10 +262,33 @@ export async function createLiveReport(report: LiveReport): Promise<void> {
     vendor_id: report.vendorId,
     type: report.type,
     created_at: report.createdAt,
+    report_date_key: report.reportDateKey ?? null,
+    note: report.note ?? null,
+    photo_label: report.photoLabel ?? null,
+    reporter_id: report.reporterId,
+    reporter_key: report.reporterId,
+    latitude: report.latitude ?? null,
+    longitude: report.longitude ?? null,
+    accuracy: report.accuracy ?? null,
+  });
+
+  if (!error) {
+    return;
+  }
+
+  const fallbackInsert = await supabase.from("live_reports").insert({
+    id: report.id,
+    vendor_id: report.vendorId,
+    type: report.type,
+    created_at: report.createdAt,
     note: report.note ?? null,
     photo_label: report.photoLabel ?? null,
     reporter_id: report.reporterId,
   });
+
+  if (!fallbackInsert.error) {
+    return;
+  }
 
   if (error) {
     console.warn("Supabase report insert failed; local fallback kept.", error);

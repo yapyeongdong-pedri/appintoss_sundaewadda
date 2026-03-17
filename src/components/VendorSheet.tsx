@@ -9,7 +9,7 @@ interface VendorSheetProps {
   vendor?: VendorSummary;
   open: boolean;
   onClose: () => void;
-  onReport: (vendorId: string, type: "open" | "notYet" | "closed") => void;
+  onReport: (vendorId: string, type: "open" | "closed") => void;
   onOpenUpdate: (vendorId: string) => void;
 }
 
@@ -159,15 +159,6 @@ export function VendorSheet({
             onClick={() => onReport(vendor.id, "open")}
           >
             {`\uC601\uC5C5\uC911 ${vendor.reportCounts.open}`}
-          </Button>
-          <Button
-            color="light"
-            variant="weak"
-            size="large"
-            display="full"
-            onClick={() => onReport(vendor.id, "notYet")}
-          >
-            {`\uD655\uC778\uC548\uB428 ${vendor.reportCounts.notYet}`}
           </Button>
           <Button
             color="danger"

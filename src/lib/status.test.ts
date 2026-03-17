@@ -34,7 +34,6 @@ describe("buildVendorSummary", () => {
     const summary = buildVendorSummary(vendor, seedReports);
 
     expect(summary.reportCounts.open).toBe(2);
-    expect(summary.reportCounts.notYet).toBe(0);
     expect(summary.reportCounts.closed).toBe(0);
   });
 });

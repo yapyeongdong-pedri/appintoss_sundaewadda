@@ -96,6 +96,7 @@ export const seedReports: LiveReport[] = [
     type: "open",
     createdAt: "2026-03-15T18:05:00+09:00",
     reporterId: "guest-a",
+    reportDateKey: "2026-03-15",
     photoLabel: "\uC21C\uB300 \uC0AC\uC9C4",
   },
   {
@@ -104,6 +105,7 @@ export const seedReports: LiveReport[] = [
     type: "open",
     createdAt: "2026-03-15T18:21:00+09:00",
     reporterId: "guest-b",
+    reportDateKey: "2026-03-15",
   },
   {
     id: "report-3",
@@ -111,6 +113,7 @@ export const seedReports: LiveReport[] = [
     type: "closed",
     createdAt: "2026-03-15T22:02:00+09:00",
     reporterId: "guest-c",
+    reportDateKey: "2026-03-15",
   },
   {
     id: "report-4",
@@ -118,6 +121,7 @@ export const seedReports: LiveReport[] = [
     type: "open",
     createdAt: "2026-03-15T19:18:00+09:00",
     reporterId: "guest-d",
+    reportDateKey: "2026-03-15",
   },
   {
     id: "report-5",
@@ -125,6 +129,7 @@ export const seedReports: LiveReport[] = [
     type: "closed",
     createdAt: "2026-03-15T22:16:00+09:00",
     reporterId: "guest-e",
+    reportDateKey: "2026-03-15",
   },
 ];
 

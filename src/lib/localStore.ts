@@ -4,6 +4,7 @@ import {
   seedUpdateRequests,
   seedVendors,
 } from "../data/seed";
+import { sanitizeLiveReports } from "./liveReports";
 import type { LiveReport, RegistrationRequest, UpdateRequest, Vendor } from "../types";
 
 const KEYS = {
@@ -45,7 +46,7 @@ export function loadLocalVendors(): Vendor[] {
 }
 
 export function loadLocalReports(): LiveReport[] {
-  return readJson(KEYS.reports, seedReports);
+  return sanitizeLiveReports(readJson(KEYS.reports, seedReports));
 }
 
 export function loadLocalRegistrationRequests(): RegistrationRequest[] {

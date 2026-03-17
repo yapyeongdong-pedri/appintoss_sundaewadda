@@ -29,11 +29,16 @@ create index if not exists reviews_vendor_id_idx on public.reviews (vendor_id);
 create table if not exists public.live_reports (
   id text primary key,
   vendor_id text not null references public.vendors(id) on delete cascade,
-  type text not null check (type in ('open', 'notYet', 'closed')),
+  type text not null check (type in ('open', 'closed')),
   created_at timestamptz not null default now(),
+  report_date_key text,
   note text,
   photo_label text,
-  reporter_id text not null
+  reporter_id text not null,
+  reporter_key text,
+  latitude numeric,
+  longitude numeric,
+  accuracy numeric
 );
 
 create index if not exists live_reports_vendor_id_idx on public.live_reports (vendor_id);

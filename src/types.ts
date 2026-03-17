@@ -1,4 +1,4 @@
-export type ReportKind = "open" | "notYet" | "closed";
+export type ReportKind = "open" | "closed";
 export type TruckStatus = "unknown" | "likelyOpen" | "likelyClosed" | "ownerConfirmed";
 export type VendorCategory =
   | "\uC21C\uB300"
@@ -34,9 +34,13 @@ export interface LiveReport {
   vendorId: string;
   type: ReportKind;
   createdAt: string;
+  reportDateKey?: string;
   note?: string;
   photoLabel?: string;
   reporterId: string;
+  latitude?: number;
+  longitude?: number;
+  accuracy?: number;
 }
 
 export interface Vendor {
