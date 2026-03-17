@@ -73,7 +73,6 @@ function App() {
     const nextReports = [nextReport, ...reports];
     setReports(nextReports);
     await createLiveReport(nextReport);
-    setFeedbackMessage("\uC2E4\uC2DC\uAC04 \uC81C\uBCF4\uAC00 \uBC18\uC601\uB410\uC5B4\uC694.");
   };
 
   const handleSubmitRegistration = async (
@@ -180,16 +179,6 @@ function App() {
           <nav className="bottom-nav" aria-label="main navigation">
             <button
               type="button"
-              className={`bottom-nav-item bottom-nav-item-side ${
-                activeTab === "requests" ? "bottom-nav-item-active" : ""
-              }`}
-              onClick={() => setActiveTab("requests")}
-            >
-              <span className="bottom-nav-icon">{"\u2795"}</span>
-              <span>{"\uD2B8\uB7ED \uCD94\uAC00"}</span>
-            </button>
-            <button
-              type="button"
               className={`bottom-nav-item bottom-nav-item-center ${
                 activeTab === "map" ? "bottom-nav-item-active" : ""
               }`}
@@ -201,12 +190,12 @@ function App() {
             <button
               type="button"
               className={`bottom-nav-item bottom-nav-item-side ${
-                activeTab === "settings" ? "bottom-nav-item-active" : ""
+                activeTab === "requests" ? "bottom-nav-item-active" : ""
               }`}
-              onClick={() => setActiveTab("settings")}
+              onClick={() => setActiveTab("requests")}
             >
-              <span className="bottom-nav-icon">{"\u2699\uFE0F"}</span>
-              <span>{"\uC124\uC815"}</span>
+              <span className="bottom-nav-icon">{"\u2795"}</span>
+              <span>{"\uD2B8\uB7ED \uCD94\uAC00"}</span>
             </button>
           </nav>
         </section>

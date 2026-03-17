@@ -69,7 +69,7 @@ export function RequestsScreen({
         <div className="screen-header">
           <div>
             <p className="section-eyebrow">{"\uD2B8\uB7ED \uCD94\uAC00"}</p>
-            <h2 className="section-title">{"\uB4F1\uB85D \uC694\uCCAD\uACFC \uC9C4\uD589 \uC0C1\uD0DC"}</h2>
+            <h2 className="section-title">{"\uC2E0\uADDC \uB4F1\uB85D / \uC218\uC815 \uC694\uCCAD \uD604\uD669"}</h2>
           </div>
           <Badge variant="weak" color="blue" size="small">
             {"\uC694\uCCAD "} {registrationRequests.length + updateRequests.length}
@@ -77,11 +77,6 @@ export function RequestsScreen({
         </div>
 
         <div className="requests-hero">
-          <p className="hero-description requests-description">
-            {
-              "\uC0C8 \uD2B8\uB7ED\uC740 \uC5EC\uAE30\uC11C \uBC14\uB85C \uC694\uCCAD\uD558\uACE0, \uC815\uBCF4 \uC218\uC815 \uC81C\uC548\uC774 \uC5B4\uB5BB\uAC8C \uC811\uC218\uB410\uB294\uC9C0 \uD55C \uB208\uC5D0 \uD655\uC778\uD574\uC694."
-            }
-          </p>
           <Button color="primary" variant="fill" size="xlarge" display="full" onClick={onOpenRegistration}>
             {"\uC2E0\uADDC \uD2B8\uB7ED \uB4F1\uB85D \uC694\uCCAD\uD558\uAE30"}
           </Button>
@@ -95,7 +90,6 @@ export function RequestsScreen({
           {recentRegistrations.length === 0 ? (
             <div className="request-empty-card">
               <strong>{"\uC544\uC9C1 \uC694\uCCAD\uD55C \uD2B8\uB7ED\uC774 \uC5C6\uC5B4\uC694."}</strong>
-              <p>{"\uC0C8 \uC21C\uB300\uD2B8\uB7ED\uC744 \uBC1C\uACAC\uD588\uB2E4\uBA74 \uBA85\uD568\uACFC \uBA54\uB274\uD310 \uC815\uBCF4\uB97C \uB0A8\uACA8\uC8FC\uC138\uC694."}</p>
             </div>
           ) : (
             <div className="request-list">
@@ -135,7 +129,6 @@ export function RequestsScreen({
           {recentUpdates.length === 0 ? (
             <div className="request-empty-card">
               <strong>{"\uC544\uC9C1 \uC218\uC815 \uC694\uCCAD\uC740 \uC5C6\uC5B4\uC694."}</strong>
-              <p>{"\uC9C0\uB3C4\uC5D0\uC11C \uD2B8\uB7ED\uC744 \uB204\uB974\uACE0 \uC815\uBCF4 \uC218\uC815 \uC694\uCCAD\uC744 \uB0A8\uAE38 \uC218 \uC788\uC5B4\uC694."}</p>
             </div>
           ) : (
             <div className="request-list">
