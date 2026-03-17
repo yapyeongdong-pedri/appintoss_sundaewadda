@@ -8,6 +8,8 @@ import { Badge, Button } from "../ui";
 interface VendorSheetProps {
   vendor?: VendorSummary;
   open: boolean;
+  feedbackMessage?: string;
+  onDismissFeedback: () => void;
   onClose: () => void;
   onReport: (vendorId: string, type: "open" | "closed") => void;
   onOpenUpdate: (vendorId: string) => void;
@@ -41,6 +43,8 @@ function formatReportTime(isoString?: string) {
 export function VendorSheet({
   vendor,
   open,
+  feedbackMessage,
+  onDismissFeedback,
   onClose,
   onReport,
   onOpenUpdate,
@@ -116,6 +120,15 @@ export function VendorSheet({
         </div>
 
         <div className="detail-body">
+          {feedbackMessage ? (
+            <section className="feedback-banner detail-feedback-banner" role="status">
+              <span>{feedbackMessage}</span>
+              <button type="button" onClick={onDismissFeedback}>
+                {"\uB2EB\uAE30"}
+              </button>
+            </section>
+          ) : null}
+
           <section className="detail-section">
             <div className="detail-section-head">
               <p className="section-label">{"\uCD5C\uC2E0 \uBA54\uB274\uD310"}</p>

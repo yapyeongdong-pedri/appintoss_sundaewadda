@@ -6,6 +6,8 @@ interface RequestsScreenProps {
   registrationRequests: RegistrationRequest[];
   updateRequests: UpdateRequest[];
   onOpenRegistration: () => void;
+  feedbackMessage?: string;
+  onDismissFeedback: () => void;
 }
 
 function formatTimeLabel(isoString: string) {
@@ -59,6 +61,8 @@ export function RequestsScreen({
   registrationRequests,
   updateRequests,
   onOpenRegistration,
+  feedbackMessage,
+  onDismissFeedback,
 }: RequestsScreenProps) {
   const recentRegistrations = registrationRequests.slice(0, 2);
   const recentUpdates = updateRequests.slice(0, 2);
@@ -81,6 +85,15 @@ export function RequestsScreen({
             {"\uC2E0\uADDC \uD2B8\uB7ED \uB4F1\uB85D \uC694\uCCAD\uD558\uAE30"}
           </Button>
         </div>
+
+        {feedbackMessage ? (
+          <section className="feedback-banner requests-feedback-banner" role="status">
+            <span>{feedbackMessage}</span>
+            <button type="button" onClick={onDismissFeedback}>
+              {"\uB2EB\uAE30"}
+            </button>
+          </section>
+        ) : null}
 
         <div className="request-section">
           <div className="request-section-head">

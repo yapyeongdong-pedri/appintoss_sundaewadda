@@ -35,7 +35,8 @@ function App() {
   const [selectedVendorId, setSelectedVendorId] = useState<string>();
   const [registrationOpen, setRegistrationOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState<string>();
+  const [requestsFeedbackMessage, setRequestsFeedbackMessage] = useState<string>();
+  const [vendorFeedbackMessage, setVendorFeedbackMessage] = useState<string>();
   const [isBootstrapping, setIsBootstrapping] = useState(true);
   const [activeTab, setActiveTab] = useState<AppTab>("map");
 
@@ -72,12 +73,12 @@ function App() {
   const handleReport = async (vendorId: string, type: "open" | "closed") => {
     const vendor = vendors.find((item) => item.id === vendorId);
     if (vendor == null || vendor.position.latitude == null || vendor.position.longitude == null) {
-      setFeedbackMessage("\uD2B8\uB7ED \uC704\uCE58 \uC815\uBCF4\uAC00 \uC544\uC9C1 \uBD80\uC871\uD574 \uC81C\uBCF4\uD560 \uC218 \uC5C6\uC5B4\uC694.");
+      setVendorFeedbackMessage("\uD2B8\uB7ED \uC704\uCE58 \uC815\uBCF4\uAC00 \uC544\uC9C1 \uBD80\uC871\uD574 \uC81C\uBCF4\uD560 \uC218 \uC5C6\uC5B4\uC694.");
       return;
     }
 
     if (!("geolocation" in navigator)) {
-      setFeedbackMessage("\uC774 \uAE30\uAE30\uC5D0\uC11C\uB294 \uC704\uCE58 \uD655\uC778\uC744 \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uC544\uC694.");
+      setVendorFeedbackMessage("\uC774 \uAE30\uAE30\uC5D0\uC11C\uB294 \uC704\uCE58 \uD655\uC778\uC744 \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uC544\uC694.");
       return;
     }
 
@@ -94,7 +95,7 @@ function App() {
     });
 
     if (position == null) {
-      setFeedbackMessage(
+      setVendorFeedbackMessage(
         "\uC2E4\uC2DC\uAC04 \uC81C\uBCF4\uB294 \uD604\uC7A5 \uD655\uC778\uC744 \uC704\uD574 \uC704\uCE58 \uAD8C\uD55C\uC774 \uD544\uC694\uD574\uC694.",
       );
       return;
@@ -108,7 +109,7 @@ function App() {
     );
     const permission = canSubmitLiveReport(distanceMeters, position.coords.accuracy);
     if (!permission.allowed) {
-      setFeedbackMessage(permission.message);
+      setVendorFeedbackMessage(permission.message);
       return;
     }
 
@@ -116,7 +117,7 @@ function App() {
     const createdAt = new Date().toISOString();
     const reportDateKey = getReportDateKey(createdAt);
     if (hasSubmittedSameReportToday(reports, vendorId, type, reporterKey, reportDateKey)) {
-      setFeedbackMessage("\uAC19\uC740 \uC81C\uBCF4\uB294 \uD558\uB8E8\uC5D0 \uD55C \uBC88\uB9CC \uAC00\uB2A5\uD574\uC694.");
+      setVendorFeedbackMessage("\uAC19\uC740 \uC81C\uBCF4\uB294 \uD558\uB8E8\uC5D0 \uD55C \uBC88\uB9CC \uAC00\uB2A5\uD574\uC694.");
       return;
     }
 
@@ -134,6 +135,9 @@ function App() {
     const nextReports = [nextReport, ...reports];
     setReports(nextReports);
     await createLiveReport(nextReport);
+    setVendorFeedbackMessage(
+      type === "open" ? "\uC601\uC5C5\uC911 \uC81C\uBCF4\uAC00 \uBC18\uC601\uB410\uC5B4\uC694." : "\uC601\uC5C5\uC885\uB8CC \uC81C\uBCF4\uAC00 \uBC18\uC601\uB410\uC5B4\uC694.",
+    );
   };
 
   const handleSubmitRegistration = async (
@@ -163,7 +167,7 @@ function App() {
     setRegistrationRequests(nextRequests);
     await createRegistrationRequest(nextRequest);
     setRegistrationOpen(false);
-    setFeedbackMessage(
+    setRequestsFeedbackMessage(
       duplicates.length > 0
         ? "\uC911\uBCF5 \uD6C4\uBCF4\uC640 \uD568\uAED8 \uB4F1\uB85D \uC694\uCCAD\uC744 \uC800\uC7A5\uD588\uC5B4\uC694."
         : "\uB4F1\uB85D \uC694\uCCAD\uC774 \uC811\uC218\uB410\uC5B4\uC694.",
@@ -184,7 +188,7 @@ function App() {
     setUpdateRequests(nextRequests);
     await createUpdateRequest(nextRequest);
     setUpdateOpen(false);
-    setFeedbackMessage("\uC218\uC815 \uC694\uCCAD\uC774 \uC811\uC218\uB410\uC5B4\uC694.");
+    setVendorFeedbackMessage("\uC218\uC815 \uC694\uCCAD\uC774 \uC811\uC218\uB410\uC5B4\uC694.");
   };
 
   return (
@@ -197,15 +201,6 @@ function App() {
               {"\uC624\uB298 \uC6B0\uB9AC \uB3D9\uB124 \uC21C\uB300\uD2B8\uB7ED, \uACF1\uCC3D\uD2B8\uB7ED \uC654\uB294\uC9C0 \uD655\uC778\uD574\uC694"}
             </p>
           </div>
-        </section>
-      ) : null}
-
-      {feedbackMessage ? (
-        <section className="feedback-banner" role="status">
-          <span>{feedbackMessage}</span>
-          <button type="button" onClick={() => setFeedbackMessage(undefined)}>
-            {"\uB2EB\uAE30"}
-          </button>
         </section>
       ) : null}
 
@@ -232,6 +227,8 @@ function App() {
                 registrationRequests={registrationRequests}
                 updateRequests={updateRequests}
                 onOpenRegistration={() => setRegistrationOpen(true)}
+                feedbackMessage={requestsFeedbackMessage}
+                onDismissFeedback={() => setRequestsFeedbackMessage(undefined)}
               />
             ) : null}
             {activeTab === "settings" ? <SettingsScreen /> : null}
@@ -265,10 +262,16 @@ function App() {
       <VendorSheet
         vendor={selectedVendor}
         open={selectedVendor != null}
-        onClose={() => setSelectedVendorId(undefined)}
+        feedbackMessage={vendorFeedbackMessage}
+        onDismissFeedback={() => setVendorFeedbackMessage(undefined)}
+        onClose={() => {
+          setSelectedVendorId(undefined);
+          setVendorFeedbackMessage(undefined);
+        }}
         onReport={handleReport}
         onOpenUpdate={(vendorId) => {
           setSelectedVendorId(vendorId);
+          setVendorFeedbackMessage(undefined);
           setUpdateOpen(true);
         }}
       />
