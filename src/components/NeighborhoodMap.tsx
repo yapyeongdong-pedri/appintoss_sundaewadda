@@ -17,8 +17,10 @@ export function NeighborhoodMap({
 }: NeighborhoodMapProps) {
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<any>(null);
+  const clustererRef = useRef<any>(null);
   const markerRefs = useRef<Map<string, any>>(new Map());
   const currentLocationMarkerRef = useRef<any>(null);
+  const currentLocationOverlayRef = useRef<any>(null);
   const shouldFocusCurrentLocationRef = useRef(false);
   const [mapMode, setMapMode] = useState<"loading" | "live" | "fallback">(() =>
     import.meta.env.VITE_KAKAO_MAP_APP_KEY ? "loading" : "fallback",
@@ -62,6 +64,35 @@ export function NeighborhoodMap({
         });
 
         mapInstanceRef.current = map;
+        if (kakao.maps.MarkerClusterer != null) {
+          const clusterer = new kakao.maps.MarkerClusterer({
+            map,
+            averageCenter: true,
+            minLevel: 6,
+            disableClickZoom: true,
+            styles: [
+              {
+                width: "42px",
+                height: "42px",
+                background: "rgba(15, 23, 42, 0.88)",
+                borderRadius: "999px",
+                color: "#fff",
+                textAlign: "center",
+                fontWeight: "700",
+                fontSize: "14px",
+                lineHeight: "42px",
+                boxShadow: "0 10px 24px rgba(15, 23, 42, 0.22)",
+              },
+            ],
+          });
+
+          kakao.maps.event.addListener(clusterer, "clusterclick", (cluster: any) => {
+            const nextLevel = Math.max(1, map.getLevel() - 1);
+            map.setLevel(nextLevel, { anchor: cluster.getCenter() });
+          });
+
+          clustererRef.current = clusterer;
+        }
         setMapMode("live");
         setMapNotice(undefined);
       } catch (error) {
@@ -95,9 +126,13 @@ export function NeighborhoodMap({
       }
 
       const map = mapInstanceRef.current;
+      const clusterer = clustererRef.current;
       const geocoder = new kakao.maps.services.Geocoder();
       const bounds = new kakao.maps.LatLngBounds();
 
+      if (clusterer != null) {
+        clusterer.clear();
+      }
       markerRefs.current.forEach((marker) => marker.setMap(null));
       markerRefs.current.clear();
 
@@ -143,7 +178,6 @@ export function NeighborhoodMap({
 
         const isSelected = vendor.id === selectedVendorId;
         const marker = new kakao.maps.Marker({
-          map,
           position,
           title: vendor.name,
           zIndex: isSelected ? 10 : 1,
@@ -157,6 +191,12 @@ export function NeighborhoodMap({
         kakao.maps.event.addListener(marker, "click", () => onSelect(vendor.id));
         markerRefs.current.set(vendor.id, marker);
       });
+
+      if (clusterer != null) {
+        clusterer.addMarkers(Array.from(markerRefs.current.values()));
+      } else {
+        markerRefs.current.forEach((marker) => marker.setMap(map));
+      }
 
       if (resolved.length > 0 && !shouldFocusCurrentLocationRef.current) {
         map.setBounds(bounds, 44, 24, 24, 24);
@@ -177,13 +217,27 @@ export function NeighborhoodMap({
             zIndex: 20,
             image: new kakao.maps.MarkerImage(
               buildCurrentLocationImage(),
-              new kakao.maps.Size(18, 18),
-              { offset: new kakao.maps.Point(9, 9) },
+              new kakao.maps.Size(34, 34),
+              { offset: new kakao.maps.Point(17, 17) },
             ),
           });
         } else {
           currentLocationMarkerRef.current.setMap(map);
           currentLocationMarkerRef.current.setPosition(currentPosition);
+        }
+
+        if (currentLocationOverlayRef.current == null) {
+          currentLocationOverlayRef.current = new kakao.maps.CustomOverlay({
+            map,
+            position: currentPosition,
+            yAnchor: 1.8,
+            zIndex: 21,
+            content:
+              '<div style="padding:6px 10px;border-radius:999px;background:#0f172a;color:#fff;font-size:12px;font-weight:700;line-height:1;box-shadow:0 8px 18px rgba(15,23,42,0.28);white-space:nowrap;">\uB0B4 \uC704\uCE58</div>',
+          });
+        } else {
+          currentLocationOverlayRef.current.setMap(map);
+          currentLocationOverlayRef.current.setPosition(currentPosition);
         }
 
         if (shouldFocusCurrentLocationRef.current) {
@@ -195,6 +249,9 @@ export function NeighborhoodMap({
         }
       } else if (currentLocationMarkerRef.current != null) {
         currentLocationMarkerRef.current.setMap(null);
+        if (currentLocationOverlayRef.current != null) {
+          currentLocationOverlayRef.current.setMap(null);
+        }
       }
     }
 
@@ -382,9 +439,11 @@ function buildMarkerImage(status: VendorSummary["status"], selected: boolean) {
 
 function buildCurrentLocationImage() {
   const svg = `
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="9" cy="9" r="8" fill="#ffffff" fill-opacity="0.88"/>
-      <circle cx="9" cy="9" r="5" fill="#3182f6"/>
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="17" cy="17" r="15" fill="#3182f6" fill-opacity="0.18"/>
+      <circle cx="17" cy="17" r="10" fill="#ffffff"/>
+      <circle cx="17" cy="17" r="7" fill="#0f62fe"/>
+      <circle cx="17" cy="17" r="2.5" fill="#ffffff"/>
     </svg>
   `.trim();
 

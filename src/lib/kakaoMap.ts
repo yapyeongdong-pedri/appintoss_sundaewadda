@@ -38,7 +38,7 @@ export async function loadKakaoMapSdk(appKey: string): Promise<any> {
   const script = document.createElement("script");
   script.id = KAKAO_MAP_SCRIPT_ID;
   script.async = true;
-  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false&libraries=services`;
+  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false&libraries=services,clusterer`;
 
   await new Promise<void>((resolve, reject) => {
     script.addEventListener("load", () => resolve(), { once: true });
